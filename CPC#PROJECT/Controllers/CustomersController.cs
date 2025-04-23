@@ -24,19 +24,23 @@ namespace CPC_PROJECT.Controllers
         }
         //logIn
         [HttpGet("logIn/{id}/{name}")]
-        public BLCustomer logIn(int id,string name)
+        public IActionResult LogIn(int id,string name)
         {
-            BLCustomer a= customers.GetById(id);
-            if (a?.CustName == name)
-                return a;
-            else return null;
+         return Ok( customers.GetById(id,name));
+           
         }
         //logOn
         [HttpPost("logOn")]
-        public IActionResult create([FromBody]BLCustomer newCustomer)
+        public IActionResult Create([FromBody]BLCustomer newCustomer)
         {
           return Ok( customers.Create(newCustomer));
-         //   return customers.GetById(newCustomer.CustId);
+       
+        }
+        //update
+        [HttpPost("update")]
+        public IActionResult Update([FromBody] BLCustomer newCustomer)
+        {
+            return Ok(customers.Create(newCustomer));
 
         }
 

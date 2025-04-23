@@ -11,5 +11,6 @@ namespace Dal.Api
     {
         List<Customer> Get();
         void Create(Customer c);
+        Customer Update(Customer c);
     }
 }

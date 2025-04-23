@@ -69,29 +69,43 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/BLCustomer"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BLCustomer"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BLCustomer"
-                }
-              }
-            }
+            "description": "OK"
           }
         }
       }
     },
     "/api/Customer/logOn": {
+      "post": {
+        "tags": [
+          "Customer"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLCustomer"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLCustomer"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BLCustomer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Customer/update": {
       "post": {
         "tags": [
           "Customer"

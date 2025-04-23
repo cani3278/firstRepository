@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Dal.Services
 {
-    public class DalCustomerService:IDalCustomers
+    public class DalCustomerService : IDalCustomers
     {
         dbcontext dbcontext;
         public DalCustomerService(dbcontext d)
@@ -18,10 +18,12 @@ namespace Dal.Services
 
         public void Create(Customer c)
         {
-            if (c.CustId != 0 && c.CustName != "string" && c.CustEmail != "string") {
+            if (c.CustId != 0 && c.CustName != "string" && c.CustEmail != "string")
+            {
 
-            dbcontext.Customers.Add(c);
-            dbcontext.SaveChanges(); }
+                dbcontext.Customers.Add(c);
+                dbcontext.SaveChanges();
+            }
             //else return 
         }
 
@@ -30,6 +32,14 @@ namespace Dal.Services
             return dbcontext.Customers.ToList();
         }
 
+        public Customer Update(Customer newC)
+        {
+            var x = dbcontext.Customers.ToList().Find(i => i.CustId == newC.CustId);
+            dbcontext.Customers.Remove(x);
+            dbcontext.Customers.Add(newC);
+            dbcontext.SaveChanges();
+            return newC;
 
+        }
     }
 }

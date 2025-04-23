@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "a39prbKHF64=",
+  "dgSpecHash": "6o8f6tgnh6c=",
   "success": true,
-  "projectFilePath": "D:\\CPC#PROJECT\\Dal\\Dal.csproj",
+  "projectFilePath": "D:\\GitHubמה שקיים ב - Copy\\c#\\Dal\\Dal.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\שיף חני\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\שיף חני\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

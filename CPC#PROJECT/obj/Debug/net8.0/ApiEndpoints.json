@@ -21,7 +21,7 @@
   },
   {
     "ContainingType": "CPC_PROJECT.Controllers.CustomerController",
-    "Method": "logIn",
+    "Method": "LogIn",
     "RelativePath": "api/Customer/logIn/{id}/{name}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -38,22 +38,28 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
-      {
-        "Type": "BL.Models.BLCustomer",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
     "ContainingType": "CPC_PROJECT.Controllers.CustomerController",
-    "Method": "create",
+    "Method": "Create",
     "RelativePath": "api/Customer/logOn",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "newCustomer",
+        "Type": "BL.Models.BLCustomer",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CPC_PROJECT.Controllers.CustomerController",
+    "Method": "Update",
+    "RelativePath": "api/Customer/update",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,

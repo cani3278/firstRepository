@@ -17,7 +17,7 @@ namespace BL.Services
         {
             this.dal = dal;
         }
-        public BLCustomer? Create(BLCustomer newBlCustomer )
+        public BLCustomer? Create(BLCustomer newBlCustomer)
         {
 
             Customer c = new()
@@ -29,8 +29,8 @@ namespace BL.Services
                 CustName = newBlCustomer.CustName,
                 CustPhone = newBlCustomer.CustPhone
             };
-            dal.Customers.Create(c);  
-            return new BLCustomer( dal.Customers.Get().Find(item => item.CustId == newBlCustomer.CustId));
+            dal.Customers.Create(c);
+            return new BLCustomer(dal.Customers.Get().Find(item => item.CustId == newBlCustomer.CustId));
 
         }
 
@@ -43,19 +43,34 @@ namespace BL.Services
             }
             return list;
         }
-       
 
-        public BLCustomer GetById(int id)
+
+        public BLCustomer GetById(int id, string name)
         {
-           List<BLCustomer> l=Get();
-         return   l.Find(item => item.CustId == id);
-            //List<BLCustomer> list = customers.Get();
-            //foreach (var item in customers.Get())
-            //{
-            //    if (item.CustId == id)
-            //        return id;
-            //}
-            //return -1;
+        
+            BLCustomer a = Get().Find(item => item.CustId == id);
+            if (a?.CustName == name)
+                return a;
+            else return null;
+        }
+
+        public BLCustomer Update(BLCustomer newBlCustomer)
+        {
+            BLCustomer a = Get().Find(item => item.CustId == item.CustId);
+            if (a == null)
+                return null;
+            Customer c = new()
+            {
+                CustId = newBlCustomer.CustId,
+                CustAddress = newBlCustomer.CustAddress,
+                CustNum = newBlCustomer.CustNum,
+                CustEmail = newBlCustomer.CustEmail,
+                CustName = newBlCustomer.CustName,
+                CustPhone = newBlCustomer.CustPhone
+            };
+             return new BLCustomer( dal.Customers.Update(c)); 
         }
     }
 }
+
+

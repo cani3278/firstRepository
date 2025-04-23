@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\CPC#PROJECT\\CPC#PROJECT\\Server.csproj": {}
+    "D:\\GitHubמה שקיים ב - Copy\\c#\\CPC#PROJECT\\Server.csproj": {}
   },
   "projects": {
-    "D:\\CPC#PROJECT\\BL\\BL.csproj": {
+    "D:\\GitHubמה שקיים ב - Copy\\c#\\BL\\BL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\CPC#PROJECT\\BL\\BL.csproj",
+        "projectUniqueName": "D:\\GitHubמה שקיים ב - Copy\\c#\\BL\\BL.csproj",
         "projectName": "BL",
-        "projectPath": "D:\\CPC#PROJECT\\BL\\BL.csproj",
+        "projectPath": "D:\\GitHubמה שקיים ב - Copy\\c#\\BL\\BL.csproj",
         "packagesPath": "C:\\Users\\שיף חני\\.nuget\\packages\\",
-        "outputPath": "D:\\CPC#PROJECT\\BL\\obj\\",
+        "outputPath": "D:\\GitHubמה שקיים ב - Copy\\c#\\BL\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -35,8 +35,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\CPC#PROJECT\\Dal\\Dal.csproj": {
-                "projectPath": "D:\\CPC#PROJECT\\Dal\\Dal.csproj"
+              "D:\\GitHubמה שקיים ב - Copy\\c#\\Dal\\Dal.csproj": {
+                "projectPath": "D:\\GitHubמה שקיים ב - Copy\\c#\\Dal\\Dal.csproj"
               }
             }
           }
@@ -76,14 +76,14 @@
         }
       }
     },
-    "D:\\CPC#PROJECT\\CPC#PROJECT\\Server.csproj": {
+    "D:\\GitHubמה שקיים ב - Copy\\c#\\CPC#PROJECT\\Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\CPC#PROJECT\\CPC#PROJECT\\Server.csproj",
+        "projectUniqueName": "D:\\GitHubמה שקיים ב - Copy\\c#\\CPC#PROJECT\\Server.csproj",
         "projectName": "Server",
-        "projectPath": "D:\\CPC#PROJECT\\CPC#PROJECT\\Server.csproj",
+        "projectPath": "D:\\GitHubמה שקיים ב - Copy\\c#\\CPC#PROJECT\\Server.csproj",
         "packagesPath": "C:\\Users\\שיף חני\\.nuget\\packages\\",
-        "outputPath": "D:\\CPC#PROJECT\\CPC#PROJECT\\obj\\",
+        "outputPath": "D:\\GitHubמה שקיים ב - Copy\\c#\\CPC#PROJECT\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -107,8 +107,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\CPC#PROJECT\\BL\\BL.csproj": {
-                "projectPath": "D:\\CPC#PROJECT\\BL\\BL.csproj"
+              "D:\\GitHubמה שקיים ב - Copy\\c#\\BL\\BL.csproj": {
+                "projectPath": "D:\\GitHubמה שקיים ב - Copy\\c#\\BL\\BL.csproj"
               }
             }
           }
@@ -167,14 +167,14 @@
         }
       }
     },
-    "D:\\CPC#PROJECT\\Dal\\Dal.csproj": {
+    "D:\\GitHubמה שקיים ב - Copy\\c#\\Dal\\Dal.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\CPC#PROJECT\\Dal\\Dal.csproj",
+        "projectUniqueName": "D:\\GitHubמה שקיים ב - Copy\\c#\\Dal\\Dal.csproj",
         "projectName": "Dal",
-        "projectPath": "D:\\CPC#PROJECT\\Dal\\Dal.csproj",
+        "projectPath": "D:\\GitHubמה שקיים ב - Copy\\c#\\Dal\\Dal.csproj",
         "packagesPath": "C:\\Users\\שיף חני\\.nuget\\packages\\",
-        "outputPath": "D:\\CPC#PROJECT\\Dal\\obj\\",
+        "outputPath": "D:\\GitHubמה שקיים ב - Copy\\c#\\Dal\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
