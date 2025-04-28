@@ -22,10 +22,8 @@ export const ordersSlice = createSlice({
       
         builder.addCase(getOrdersThunk.fulfilled, (state, action) => {
             console.log("get orders succeed");
-           
+            console.log(action.payload);           
             state.myOrders = action.payload;
-      
-            
         });
        
         builder.addCase(getOrdersThunk.rejected, (state, action) => {

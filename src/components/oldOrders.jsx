@@ -26,12 +26,6 @@ export const OldOrders = () => {
   const dispatch = useDispatch();
 
   //עבור כפתור תמונה...
-  const image =
-  {
-    url: process.env.PUBLIC_URL + "/pppp.jpg",
-    title: 'to see your order details',
-    width: '100%',
-  };
   const ImageButton = styled(ButtonBase)(({ theme }) => ({
     position: 'relative',
     height: 200,
@@ -152,7 +146,7 @@ export const OldOrders = () => {
 }, [])
  useEffect(()=>{
   var arr = [];
-  if(olds.length>0&&details.length==0){
+  if(olds.length>0&&details.length===0){
   olds.map(o => {
     arr.push(-1)
   })
@@ -170,6 +164,8 @@ export const OldOrders = () => {
             <TableCell align="right" style={{fontFamily:"cursive"}} >orderNum</TableCell>
             <TableCell align="right" style={{fontFamily:"cursive"}}>Date</TableCell>
             <TableCell align="right" style={{fontFamily:"cursive"}}>sent</TableCell>
+            <TableCell align="right" style={{fontFamily:"cursive"}}>עובד אחראי</TableCell>
+            <TableCell align="right" style={{fontFamily:"cursive"}}>מייל לפניות ישירות בנושא</TableCell>
             <TableCell align="right" style={{fontFamily:"cursive"}}>Details</TableCell>
           </TableRow>
         </TableHead>
@@ -181,6 +177,8 @@ export const OldOrders = () => {
               <TableCell align="right" sx={{width:"15%",fontFamily:"cursive"}}>
                 {row.sent ? <><span style={{fontSize:"xx-large"}}>✅</span><br /><span style={{fontSize:"small"}}> המשלוח כבר בדרך אליך</span> </> 
               :<><span style={{fontSize:"xxx-large"}}>❎</span><br /><span sx={{fontSize:"medium",fontFamily:"cursive"}}>  המשלוח עתיד להישלח ביום העסקים הבא</span> </>  }</TableCell>
+              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.empName}</TableCell>
+              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.empEmail}</TableCell>
               <TableCell align="right">
                 {hasDetails[index]!==-1 &&
                 <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper',fontFamily:"cursive",fontSize:"large" }}>
@@ -189,13 +187,13 @@ export const OldOrders = () => {
                   <ListItemText primary={o.prodName} secondary={o.count} />
                 </ListItem> )  } </List>}
                 {hasDetails[index]===-1 && <>
-                 <ImageButton focusRipple key={image.title} style={{ width: image.width,fontFamily:"cursive" }} onClick={() => fetchDetails(row.orderId)} >
-                    <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
+                 <ImageButton focusRipple style={{ width:"100%",fontFamily:"cursive" }} onClick={() => fetchDetails(row.orderId)} >
+                    <ImageSrc style={{ backgroundImage: `url(${process.env.PUBLIC_URL + "/pppp.jpg"})` }} />
                     <ImageBackdrop className="MuiImageBackdrop-root" />
                     <Image> <Typography  component="span"  variant="subtitle1" color="inherit"  sx={(theme) => ({
                         fontFamily:"cursive",
                         position: 'relative', p: 4, pt: 2, pb: `calc(${theme.spacing(1)} + 6px)`,  })}>
-                      {image.title} 
+                      to see your order details
                       <ImageMarked className="MuiImageMarked-root" />
                     </Typography>  </Image> </ImageButton>  </>}
               </TableCell>
