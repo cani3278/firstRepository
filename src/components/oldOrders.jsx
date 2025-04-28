@@ -164,6 +164,8 @@ export const OldOrders = () => {
             <TableCell align="right" style={{fontFamily:"cursive"}} >orderNum</TableCell>
             <TableCell align="right" style={{fontFamily:"cursive"}}>Date</TableCell>
             <TableCell align="right" style={{fontFamily:"cursive"}}>sent</TableCell>
+            <TableCell align="right" style={{fontFamily:"cursive"}}>עובד אחראי</TableCell>
+            <TableCell align="right" style={{fontFamily:"cursive"}}>מייל לפניות ישירות בנושא</TableCell>
             <TableCell align="right" style={{fontFamily:"cursive"}}>Details</TableCell>
           </TableRow>
         </TableHead>
@@ -175,6 +177,8 @@ export const OldOrders = () => {
               <TableCell align="right" sx={{width:"15%",fontFamily:"cursive"}}>
                 {row.sent ? <><span style={{fontSize:"xx-large"}}>✅</span><br /><span style={{fontSize:"small"}}> המשלוח כבר בדרך אליך</span> </> 
               :<><span style={{fontSize:"xxx-large"}}>❎</span><br /><span sx={{fontSize:"medium",fontFamily:"cursive"}}>  המשלוח עתיד להישלח ביום העסקים הבא</span> </>  }</TableCell>
+              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.empName}</TableCell>
+              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.empEmail}</TableCell>
               <TableCell align="right">
                 {hasDetails[index]!==-1 &&
                 <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper',fontFamily:"cursive",fontSize:"large" }}>
