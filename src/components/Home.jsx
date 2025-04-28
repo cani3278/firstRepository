@@ -59,7 +59,9 @@ export const Home = () => {
 
 
 
-    return <div style={{ backgroundImage: `url(${process.env.PUBLIC_URL + "/basisLabait.jpg"})`, height: "90vh" }}>
+    return <div 
+    
+    style={{ backgroundImage: `url(${process.env.PUBLIC_URL + "/basisLabait.jpg"})`, height: "90vh" }}>
         <ImageSrc style={{ backgroundImage: `url(${process.env.PUBLIC_URL + "/basisLabait.jpg"})` }} />
         <ImageBackdrop className="MuiImageBackdrop-root" />
         <Image> <Typography component="span" variant="subtitle1" color="inherit" sx={(theme) => ({
@@ -71,7 +73,7 @@ export const Home = () => {
             <span style={{}} onClick={newOrd}>new order</span><ImageMarked className="MuiImageMarked-root" />
             <span onClick={Ord}>my old orders</span>
             <ImageMarked className="MuiImageMarked-root" />
-        </Typography>  </Image>
+                 </Typography>  </Image>
 
 
     </div>

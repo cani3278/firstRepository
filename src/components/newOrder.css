@@ -1,3 +1,74 @@
+/* RTL Support */
+body {
+    direction: rtl;
+  }
+  
+  /* Animation for quantity changes */
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  .quantity-change {
+    animation: pulse 0.3s ease-in-out;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #1976d2;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #1565c0;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .MuiContainer-root {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+  }
+  
+  /* Card hover effect */
+  .MuiCard-root {
+    transition: all 0.3s ease;
+  }
+  
+  .MuiCard-root:hover {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  }
+  
+  /* Button styling */
+  .MuiButton-containedPrimary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  /* Empty cart message */
+  .empty-cart-message {
+    text-align: center;
+    padding: 2rem;
+    color: #757575;
+  }
 *{
     font-family: cursive;
     font-size: large;

@@ -26,12 +26,6 @@ export const OldOrders = () => {
   const dispatch = useDispatch();
 
   //עבור כפתור תמונה...
-  const image =
-  {
-    url: process.env.PUBLIC_URL + "/pppp.jpg",
-    title: 'to see your order details',
-    width: '100%',
-  };
   const ImageButton = styled(ButtonBase)(({ theme }) => ({
     position: 'relative',
     height: 200,
@@ -152,7 +146,7 @@ export const OldOrders = () => {
 }, [])
  useEffect(()=>{
   var arr = [];
-  if(olds.length>0&&details.length==0){
+  if(olds.length>0&&details.length===0){
   olds.map(o => {
     arr.push(-1)
   })
@@ -189,13 +183,13 @@ export const OldOrders = () => {
                   <ListItemText primary={o.prodName} secondary={o.count} />
                 </ListItem> )  } </List>}
                 {hasDetails[index]===-1 && <>
-                 <ImageButton focusRipple key={image.title} style={{ width: image.width,fontFamily:"cursive" }} onClick={() => fetchDetails(row.orderId)} >
-                    <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
+                 <ImageButton focusRipple style={{ width:"100%",fontFamily:"cursive" }} onClick={() => fetchDetails(row.orderId)} >
+                    <ImageSrc style={{ backgroundImage: `url(${process.env.PUBLIC_URL + "/pppp.jpg"})` }} />
                     <ImageBackdrop className="MuiImageBackdrop-root" />
                     <Image> <Typography  component="span"  variant="subtitle1" color="inherit"  sx={(theme) => ({
                         fontFamily:"cursive",
                         position: 'relative', p: 4, pt: 2, pb: `calc(${theme.spacing(1)} + 6px)`,  })}>
-                      {image.title} 
+                      to see your order details
                       <ImageMarked className="MuiImageMarked-root" />
                     </Typography>  </Image> </ImageButton>  </>}
               </TableCell>
