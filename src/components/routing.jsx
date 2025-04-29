@@ -7,6 +7,8 @@ import { OldOrders } from "./oldOrders"
 import { ServicePage } from "./servicePage"
 import { Manage } from "./manage"
 import { ManageProducts } from "./manageProducts"
+import { ManageCustomers } from "./manageCustomers"
+import { ManageEmployees } from "./manageEmployees"
 
 
 export const Routing = () => {
@@ -21,6 +23,8 @@ export const Routing = () => {
             <Route path='/service' element={<ServicePage />} />
             <Route path='/Manage' element={<Manage />} />
             <Route path='/Manage/ManageProducts' element={<ManageProducts />} />
+            <Route path='/Manage/ManageCustomers' element={<ManageCustomers />} />
+            <Route path='/Manage/ManageEmployees' element={<ManageEmployees />} />
             <Route path="/" element={<Login />}/>
         </Routes>
     </>

@@ -13,6 +13,7 @@ export const Manage=()=>{
           url: '/static/images/buttons/breakfast.jpg',
           title: 'Employees',
           width: '40%',
+          navigateTo:'ManageCustomers'
         },
         {
           url: '/static/images/buttons/burgers.jpg',
@@ -24,13 +25,13 @@ export const Manage=()=>{
           url: '/static/images/buttons/camera.jpg',
           title: 'Customers',
           width: '30%',
-          navigateTo:''
+          navigateTo:'ManageEmployees'
         },
       ];
       
       const ImageButton = styled(ButtonBase)(({ theme }) => ({
         position: 'relative',
-        height: 200,
+        height: 700,
         [theme.breakpoints.down('sm')]: {
           width: '100% !important', // Overrides inline-style
           height: 100,
@@ -92,9 +93,10 @@ export const Manage=()=>{
         transition: theme.transitions.create('opacity'),
       }));
 
-    return <div>
+    return <div >
+      {/* style={{ backgroundImage: `url(${process.env.PUBLIC_URL + "/basisLabait.jpg"})`, height: "90vh" ,width:"100%"}} */}
+<h1 style={{fontSize:"70px"}}>wellcome manager</h1>
 
-wellcome manager
 <Box sx={{ display: 'flex', flexWrap: 'wrap', minWidth: 300, width: '100%' }}>
       {images.map((image) => (
         <ImageButton

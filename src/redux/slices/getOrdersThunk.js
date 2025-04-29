@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const getOrdersThunk = createAsyncThunk(
    'getOrders', 
+   
    async (id) => {
        
        const res = await fetch(`https://localhost:7064/api/Orders/GetByCustomer/${id}`);
