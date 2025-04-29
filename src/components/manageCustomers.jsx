@@ -15,9 +15,15 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { getAllCustomersThunk } from '../redux/slices/getAllCustomersThunk';
+import { TableHead } from '@mui/material';
 export const ManageCustomers=()=>{
-
+const dispatch = useDispatch();
+  useEffect(()=>{
+    dispatch(getAllCustomersThunk());
+  },[])
     function TablePaginationActions(props) {
         const theme = useTheme();
         const { count, page, rowsPerPage, onPageChange } = props;
@@ -79,11 +85,8 @@ export const ManageCustomers=()=>{
         rowsPerPage: PropTypes.number.isRequired,
       };
       
-      function createData(name, calories, fat) {
-        return { name, calories, fat };
-      }
-      
-      const rows = useSelector(state => state.Employees.employees);
+          
+      const rows = useSelector(state => state.customer.custList);
       
     // function CustomPaginationActionsTable() {}
         const [page, setPage] = React.useState(0);
@@ -103,22 +106,54 @@ export const ManageCustomers=()=>{
         };
 
     return <div>
-    <TableContainer component={Paper}sx={{ overflow:"hidden" }}>
+    <TableContainer component={Paper} sx={{ overflow:"hidden" }}>
       <Table sx={{ minWidth: 500,overflow:"hidden" }} aria-label="custom pagination table">
-        <TableBody>
+      <TableHead>
+             <TableRow > 
+             <TableCell style={{ width: 160 }} align="right">
+               Name
+              </TableCell>
+              <TableCell component="th" scope="row">
+                ID
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+                Number
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+                Address
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+               Email
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+               Phone
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
           {(rowsPerPage > 0
             ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             : rows
           ).map((row) => (
-            <TableRow key={row.name}>
+            <TableRow key={row.custId}> 
+            <TableCell style={{ width: 160 }} align="right">
+                {row.custName}
+              </TableCell>
               <TableCell component="th" scope="row">
-                {row.name}
+                {row.custId}
               </TableCell>
               <TableCell style={{ width: 160 }} align="right">
-                {row.calories}
+                {row.custNum}
+              </TableCell>
+              
+              <TableCell style={{ width: 160 }} align="right">
+                {row.custAddress}
               </TableCell>
               <TableCell style={{ width: 160 }} align="right">
-                {row.fat}
+                {row.custEmail}
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+                {row.custPhone}
               </TableCell>
             </TableRow>
           ))}
@@ -147,6 +182,7 @@ export const ManageCustomers=()=>{
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
               ActionsComponent={TablePaginationActions}
+              style={{overflow:"hidden"}}
             />
           </TableRow>
         </TableFooter>

@@ -13,7 +13,7 @@ export const Manage=()=>{
           url: '/static/images/buttons/breakfast.jpg',
           title: 'Employees',
           width: '40%',
-          navigateTo:'ManageCustomers'
+          navigateTo:'ManageEmployees'
         },
         {
           url: '/static/images/buttons/burgers.jpg',
@@ -25,7 +25,7 @@ export const Manage=()=>{
           url: '/static/images/buttons/camera.jpg',
           title: 'Customers',
           width: '30%',
-          navigateTo:'ManageEmployees'
+          navigateTo:'ManageCustomers'
         },
       ];
       
