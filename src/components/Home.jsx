@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 export const Home = () => {
     const preventDefault = (event) => event.preventDefault();
-    const CName = useSelector(state => state.user.custDetails.custName);
+    const CName = useSelector(state => state.customer.custDetails.custName);
     const navigate = useNavigate();
     const newOrd = () => {
         navigate('/newOrder')

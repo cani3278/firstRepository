@@ -20,7 +20,7 @@ import Avatar from '@mui/material/Avatar';
 export const OldOrders = () => {
 
 
-  const id = useSelector(state => state.user.custDetails.custId);
+  const id = useSelector(state => state.customer.custDetails.custId);
   const olds = useSelector(state => state.Orders.myOrders);
   const details = useSelector(state => state.Orders.orderDetail);
   const dispatch = useDispatch();
