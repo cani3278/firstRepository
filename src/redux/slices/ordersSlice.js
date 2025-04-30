@@ -7,16 +7,13 @@ import { getOrdersForEmpThunk } from "./getOrdersForEmpThunk";
 export const INITAIL_STATE_ORDERS = {
         myOrders:[] ,
     orderDetail:[],
+    ordersForManage:[],
     j:0
 }
 export const ordersSlice = createSlice({
     name: 'Orders',
     initialState: INITAIL_STATE_ORDERS,
-    reducers: {
-        // addToOrder: (state, action) => {
-        //     state.myOrder = state.myOrder.push(action.payload);
-        // }
-    },
+    reducers: {},
     extraReducers: (builder) => {
 
       
@@ -34,8 +31,7 @@ export const ordersSlice = createSlice({
             console.log("get orders succeed");
            
             state.myOrders = action.payload;
-      
-            
+                 
         });
        
         builder.addCase(getOrdersForEmpThunk.rejected, (state, action) => {
