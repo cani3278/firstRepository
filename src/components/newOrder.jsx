@@ -21,7 +21,7 @@ export const NewOrder = () => {
   const products = useSelector(state => state.Products.productsList);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const CID = useSelector(state => state.customer.CID);
+  const CID = useSelector(state => state.user.CID);
   const employees = useSelector(state => state.Employees.employees);
 
   const [myOrders, setMyOrders] = useState([]);

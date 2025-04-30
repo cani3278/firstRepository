@@ -17,10 +17,12 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
+import { useNavigate } from "react-router-dom";
 export const OldOrders = () => {
 
 
-  const id = useSelector(state => state.customer.custDetails.custId);
+  const id = useSelector(state => state.user.CID);
+  const EID = useSelector(state => state.user.EID);
   const olds = useSelector(state => state.Orders.myOrders);
   const details = useSelector(state => state.Orders.orderDetail);
   const dispatch = useDispatch();
@@ -130,18 +132,12 @@ export const OldOrders = () => {
     console.log(details);
    
   }, [details])//,hasDetails
-//למחיקה אחרי הבדיקה
-// useEffect(() => {
-//   console.log("hasDetails");
-//     console.log(hasDetails);
-//     console.log("olds");
-//     console.log(olds);
-// }, [hasDetails])
+
  //אתחול 
   useEffect(() => {
     console.log(id);
     dispatch(getOrdersThunk(id));
-   
+   console.log(olds>0);
    
 }, [])
  useEffect(()=>{
@@ -154,8 +150,11 @@ export const OldOrders = () => {
   setHasDetails(arr);
 }
  },[olds])
+ const navigate = useNavigate();
   return <div >
      <ThemeProvider theme={theme}>
+      {EID!=0&& <button onClick={()=>navigate("../")} >חזרה לדף הניהול</button>}
+      {olds.length>0&&
      <TableContainer component={Paper} sx={{ direction: "rtl" ,overflow:"hidden"}}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table"
       >
@@ -175,10 +174,10 @@ export const OldOrders = () => {
               <TableCell component="th" scope="row" sx={{fontFamily:"cursive",fontSize:"large",width:"15%"}}> {row.orderId}</TableCell>
               <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.orderDate}</TableCell>
               <TableCell align="right" sx={{width:"15%",fontFamily:"cursive"}}>
-                {row.sent ? <><span style={{fontSize:"xx-large"}}>✅</span><br /><span style={{fontSize:"small"}}> המשלוח כבר בדרך אליך</span> </> 
+                {row.sent ? <><span style={{fontSize:"xxx-large"}}>✅</span><br /><span sx={{fontSize:"medium",fontFamily:"cursive"}}> המשלוח כבר בדרך אליך</span> </> 
               :<><span style={{fontSize:"xxx-large"}}>❎</span><br /><span sx={{fontSize:"medium",fontFamily:"cursive"}}>  המשלוח עתיד להישלח ביום העסקים הבא</span> </>  }</TableCell>
-              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.empName}</TableCell>
-              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.empEmail}</TableCell>
+              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.nameToConnection}</TableCell>
+              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.emailToConnection}</TableCell>
               <TableCell align="right">
                 {hasDetails[index]!==-1 &&
                 <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper',fontFamily:"cursive",fontSize:"large" }}>
@@ -200,7 +199,10 @@ export const OldOrders = () => {
             </TableRow>))}
         </TableBody>
       </Table>
-    </TableContainer>
+    </TableContainer>}
+    {olds.length===0&&
+    <h1 style={{fontSize:"100px"}}>מצטערים 😔😔😔😔😔😔 לא נמצאו הזמנות קודמות עבור לקוח זה </h1>
+    }
     </ThemeProvider>
   </div>
 

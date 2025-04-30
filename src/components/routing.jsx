@@ -9,6 +9,7 @@ import { ManageProducts } from "./manageProducts"
 import { ManageCustomers } from "./manageCustomers"
 import { ManageEmployees } from "./manageEmployees"
 import { NewCustomer } from "./newCustomer"
+import { EmpOrderList } from "./empOrderList"
 
 
 export const Routing = () => {
@@ -20,11 +21,13 @@ export const Routing = () => {
             <Route path='/Home' element={<Home />} />
             <Route path='/newOrder' element={<NewOrder />} />
             <Route path='/Orders' element={<OldOrders />} />
+            <Route path='/Manage/ManageCustomers/custOrderList' element={<OldOrders />} />
             <Route path='/service' element={<ServicePage />} />
             <Route path='/Manage' element={<Manage />} />
             <Route path='/Manage/ManageProducts' element={<ManageProducts />} />
             <Route path='/Manage/ManageCustomers' element={<ManageCustomers />} />
             <Route path='/Manage/ManageEmployees' element={<ManageEmployees />} />
+            <Route path='/listOrdersForEmployee' element={<EmpOrderList />} />
             <Route path="/" element={<Login />}/>
         </Routes>
     </>

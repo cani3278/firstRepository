@@ -3,6 +3,7 @@ import { getOrdersThunk } from "./getOrdersThunk";
 import { addOrderThunk } from "./addOrderThunk";
 import { getOrderDetailsThunk } from "./getOrderDetailsThunk";
 import { getOrdersForEmpThunk } from "./getOrdersForEmpThunk";
+import { UpdateSendingThunk } from "./updateSending";
 
 export const INITAIL_STATE_ORDERS = {
         myOrders:[] ,
@@ -59,6 +60,17 @@ export const ordersSlice = createSlice({
         });
 
         builder.addCase(addOrderThunk.rejected, (state, action) => {
+            console.log("order action: ", action);
+        });
+        builder.addCase(UpdateSendingThunk.fulfilled, (state, action) => {
+            console.log("add order succeed");
+           
+            state.myOrders = action.payload;
+      
+            
+        });
+
+        builder.addCase(UpdateSendingThunk.rejected, (state, action) => {
             console.log("order action: ", action);
         });
           }

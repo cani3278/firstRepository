@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { logInThunk } from "./logInThunk";
 import { addCustomerThunk } from "./addCustomerThunk";
 import { getAllCustomersThunk } from "./getAllCustomersThunk";
+import { getAllemployeesThunk } from "./getAllEmployeesThunk";
 
 export const INITAIL_STATE_CUSTOMER = {
     customername: "",
@@ -11,21 +12,23 @@ export const INITAIL_STATE_CUSTOMER = {
     sucsses: false,
     failed: false,
     custDetails:{},
-    custList:[]
+    custList:[],
+    empList:[]
 }
-export const CustomerSlice = createSlice({
-    name: 'customer',
+export const userSlice = createSlice({
+    name: 'user',
     initialState: INITAIL_STATE_CUSTOMER,
     reducers: {
 
         editcustomername: (state, action) => {
-            state.customername = action.payload;
+            state.username = action.payload;
         },
         editPassword: (state, action) => {
             state.password = action.payload;
         },
         editCID: (state, action) => {
             state.CID = action.payload;
+            console.log(state.CID);
         }
     },
 
@@ -80,7 +83,16 @@ export const CustomerSlice = createSlice({
         builder.addCase(getAllCustomersThunk.rejected, (state, action) => {
             console.log("action: ", action);
         });
+           //getAllEmployees
+        // הוספת מקרה שהט'נק הסתיים בהצלחה
+        builder.addCase(getAllemployeesThunk.fulfilled, (state, action) => {
+            state.empList = action.payload;
+            });
+        // הוספת מקרה שהט'נק נכשל 
+        builder.addCase(getAllemployeesThunk.rejected, (state, action) => {
+            console.log("action: ", action);
+        });
     }
 });
 
-export const { editcustomername, editPassword, editCID } = CustomerSlice.actions;
+export const { editcustomername, editPassword, editCID } = userSlice.actions;

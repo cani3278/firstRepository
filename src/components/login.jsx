@@ -5,12 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logInThunk } from "../redux/slices/logInThunk";
 import './login.css'
-import { editPassword, editcustomername } from "../redux/slices/customerSlice";
+import { editPassword, editcustomername } from "../redux/slices/userSlice";
 export const Login = () => {
     const navigate = useNavigate();
-    const CID = useSelector(state => state.customer.CID);
-    const EID = useSelector(state => state.customer.EID);
-    const failed = useSelector(state => state.customer.failed);
+    const CID = useSelector(state => state.user.CID);
+    const EID = useSelector(state => state.user.EID);
+    const failed = useSelector(state => state.user.failed);
     const dispatch = useDispatch();
     const [details, setDetails] = useState({ customername: "", password: "" });
     const [newcustomer, setNewcustomer] = useState(false)
@@ -22,7 +22,7 @@ export const Login = () => {
             navigate(`Manage`)
         }
         if (EID !== -1&&EID !== 10000)
-            navigate(`service`)//employee    
+            navigate(`/listOrdersForEmployee`)//employee    
         if (CID === -1 && failed) {
             setNewcustomer(true)
             console.log(details);

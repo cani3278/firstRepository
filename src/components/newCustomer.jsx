@@ -9,13 +9,13 @@ import { addCustomerThunk } from "../redux/slices/addCustomerThunk";
 export const NewCustomer = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const customername = useSelector(state => state.customer.customername);
-    const password = useSelector(state => state.customer.password);
+    const customername = useSelector(state => state.user.customername);
+    const password = useSelector(state => state.user.password);
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
     const [address, setAddress] = useState("");
-    const CID = useSelector(state => state.customer.CID);
-    const EID = useSelector(state => state.customer.EID);
+    const CID = useSelector(state => state.user.CID);
+    const EID = useSelector(state => state.user.EID);
     useEffect(() => {
         console.log(customername + "customername");
     }, [])
