@@ -141,6 +141,7 @@ export const ManageProducts=()=>{
         };
 
     return <div>
+      <h1></h1>
     <TableContainer component={Paper} sx={{ overflow:"hidden" }}>
       <Table sx={{ minWidth: 500 ,overflow:"hidden"}} aria-label="custom pagination table">
         <TableBody>
