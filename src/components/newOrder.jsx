@@ -21,14 +21,14 @@ export const NewOrder = () => {
   const products = useSelector(state => state.Products.productsList);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const CID = useSelector(state => state.user.CID);
+  const CID = useSelector(state => state.customer.CID);
   const employees = useSelector(state => state.Employees.employees);
 
   const [myOrders, setMyOrders] = useState([]);
   const [employee, setEmployee] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [orderTotal, setOrderTotal] = useState(0);
+  const [listEmps, setListEmps] = useState(false);
 
   // Custom theme with RTL support
   const theme = createTheme({
@@ -70,19 +70,28 @@ export const NewOrder = () => {
     }
   }, [products]);
 
-  useEffect(() => {
-    // Calculate order total whenever orders change
-    const total = myOrders.reduce((sum, item) => {
-      const product = products.find(p => p.prodId === item.prodId);
-      return sum + (item.count * (product?.pprice || 0));
-    }, 0);
-    setOrderTotal(total);
-  }, [myOrders, products]);
+  // useEffect(() => {
+  //   // Calculate order total whenever orders change
+  //   const total = myOrders.reduce((sum, item) => {
+  //     const product = products.find(p => p.prodId === item.prodId);
+  //     return sum + (item.count * (product?.pprice || 0));
+  //   }, 0);
+  //   setOrderTotal(total);
+  // }, [myOrders, products]);
 
   const getEmps = () => {
-    dispatch(getEmployeesThunk);
+    dispatch(getEmployeesThunk());
+    console.log(employees);
+    setListEmps(true);
   }
+useEffect(()=>{
+
+},[listEmps])
+
   const handleQuantityChange = (prodId, change) => {
+    setListEmps(true);
+    getEmps();
+    console.log("handleQuantityChange");
     setMyOrders(prevOrders =>
       prevOrders.map(order => {
         if (order.prodId === prodId) {
@@ -104,13 +113,13 @@ export const NewOrder = () => {
   };
 
   const handleEmployeeChange = (event) => {
-    dispatch(getEmployeesThunk);
+    setListEmps(true);
     setEmployee(event.target.value);
   };
 
   const handleFinishOrder = () => {
     const orderItems = myOrders.filter(item => item.count > 0);
-
+console.log("handleFinishOrder");
     if (orderItems.length > 0) {
       dispatch(addOrderThunk({
         details: orderItems,
@@ -127,7 +136,7 @@ export const NewOrder = () => {
     event.target.src = 'https://placehold.co/300x180/cccccc/333333?text=No+Image';
   };
 
-  // ובתוך ה-CardMedia, שנה ל:
+ 
 
 
   return (
@@ -146,7 +155,8 @@ export const NewOrder = () => {
               const orderItem = myOrders.find(item => item.prodId === product.prodId) || { count: 0 };
 
               return (
-                <Grid item xs={12} sm={6} md={3} key={product.prodId}>
+               
+                <Grid item xs={12} sm={6} md={3} key={product.prodId}> 
                   <Card
                     elevation={4}
                     sx={{
@@ -161,16 +171,6 @@ export const NewOrder = () => {
                       overflow: 'hidden'
                     }}
                   >
-                    {/* <CardMedia
-                      component="div"
-                      sx={{
-                        height: 180,
-                        backgroundImage: `url(${product.ppicture})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        position: 'relative',
-                      }}
-                    > */}
                     <CardMedia
                       component="img"
                       height={180}
@@ -198,19 +198,10 @@ export const NewOrder = () => {
 
 
                     <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      {/* <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        {product.pcompany}
-                      </Typography> */}
-
+                 
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        {/* <IconButton 
-                          color="primary" 
-                          onClick={() => handleQuantityChange(product.prodId, 1)}
-                          sx={{ backgroundColor: '#e3f2fd', '&:hover': { backgroundColor: '#bbdefb' } }}
-                        >
-                          <AddIcon />
-                        </IconButton> */}
-                        <IconButton color="primary"
+            
+                                    <IconButton color="primary"
                           onClick={() => handleQuantityChange(product.prodId, 1)}
                         // sx={{ '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.04)' } }}
                         >
@@ -222,14 +213,6 @@ export const NewOrder = () => {
                           {orderItem.count}
                         </Typography>
 
-                        {/* <IconButton 
-                          color="primary" 
-                          onClick={() => handleQuantityChange(product.prodId, -1)}
-                          disabled={orderItem.count <= 0}
-                          sx={{ backgroundColor: '#e3f2fd', '&:hover': { backgroundColor: '#bbdefb' } }}
-                        >
-                          <RemoveIcon />
-                        </IconButton> */}
                         <IconButton
                           color="primary"
                           onClick={() => handleQuantityChange(product.prodId, -1)}
@@ -264,8 +247,8 @@ export const NewOrder = () => {
             סיום הזמנה
           </Typography>
 
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
-            <FormControl sx={{ m: 1, minWidth: 250 }} onClick={getEmps}>
+          <Box onClick={(e)=>setListEmps(true)} sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
+            <FormControl sx={{ m: 1, minWidth: " 250px"}} onClick={(e)=>setListEmps(true)}>
               <InputLabel id="employee-select-label" >בחר עובד לטיפול בהזמנה</InputLabel>
               <Select
                 labelId="employee-select-label"
@@ -273,10 +256,11 @@ export const NewOrder = () => {
                 value={employee}
                 label="בחר עובד לטיפול בהזמנה"
                 onChange={handleEmployeeChange}
+                // sx={{font:"blueviolet"}}-----------------------------------------------------------------------------------------------
               >
                 {employees?.map((emp) => (
-                  <MenuItem key={emp.id} value={emp.id}>
-                    {emp.name}
+                  <MenuItem key={emp.ename} value={emp.ename}>
+                    {emp.ename}
                   </MenuItem>
                 ))}
               </Select>
@@ -289,13 +273,14 @@ export const NewOrder = () => {
                 size="large"
                 startIcon={<ShoppingCartIcon />}
                 onClick={handleFinishOrder}
-                disabled={myOrders.every(item => item.count === 0) || !employee}
+                disabled={myOrders.every(item => item.count === 0) }
                 sx={{
-                  px: 4,
-                  py: 1.5,
+                  px:2,
+                  py: 3,
                   borderRadius: 2,
                   background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
                   boxShadow: '0 3px 5px 2px rgba(33, 150, 243, .3)',
+                  // color:"Highlight"-----------------------------------------------------------------------why this line isn't working
                 }}
               >
                 סיים הזמנה

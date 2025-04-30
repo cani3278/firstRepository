@@ -5,15 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logInThunk } from "../redux/slices/logInThunk";
 import './login.css'
-import { editPassword, editUsername } from "../redux/slices/userSlice";
+import { editPassword, editcustomername } from "../redux/slices/customerSlice";
 export const Login = () => {
     const navigate = useNavigate();
-    const CID = useSelector(state => state.user.CID);
-    const EID = useSelector(state => state.user.EID);
-    const failed = useSelector(state => state.user.failed);
+    const CID = useSelector(state => state.customer.CID);
+    const EID = useSelector(state => state.customer.EID);
+    const failed = useSelector(state => state.customer.failed);
     const dispatch = useDispatch();
-    const [details, setDetails] = useState({ username: "", password: "" });
-    const [newUser, setNewUser] = useState(false)
+    const [details, setDetails] = useState({ customername: "", password: "" });
+    const [newcustomer, setNewcustomer] = useState(false)
 
     useEffect(() => {
         if (CID !== -1)
@@ -24,21 +24,21 @@ export const Login = () => {
         if (EID !== -1&&EID !== 10000)
             navigate(`service`)//employee    
         if (CID === -1 && failed) {
-            setNewUser(true)
+            setNewcustomer(true)
             console.log(details);
-            navigate(`/newUser`)
+            navigate(`/newcustomer`)
         }
     }, [failed, CID,EID])
 
 
     return (
         <div className="login-container">
-            {!newUser && (
+            {!newcustomer && (
                 <>
                     <input
                         className="input-field"
                         type="text"
-                        onChange={(e) => setDetails({ ...details, username: e.target.value })}
+                        onChange={(e) => setDetails({ ...details, customername: e.target.value })}
                         placeholder="שם משתמש"
                     />
                     <input
@@ -51,7 +51,7 @@ export const Login = () => {
                         className="login-button"
                         onClick={() => {
                             dispatch(editPassword(details.password));
-                            dispatch(editUsername(details.username));
+                            dispatch(editcustomername(details.customername));
                             dispatch(logInThunk(details));
                         }}
                     >

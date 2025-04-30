@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import { getEmployeesThunk } from "./getEmployeesThunk";
 
 export const INITAIL_STATE_EMPLOYEES = {
-   employees:[]
+   employees:[],
+   employeesNames:[]
 }
 export const employeesSlice = createSlice({
     name: 'Employees',
@@ -14,9 +15,8 @@ export const employeesSlice = createSlice({
 
       
         builder.addCase(getEmployeesThunk.fulfilled, (state, action) => {
-            console.log("get emps succeed");
-            state.employees = action.payload;   
-            
+             state.employees = action.payload;   
+            state.employees.forEach(e=>state.employeesNames.push(e.ename));
         });
        
         builder.addCase(getEmployeesThunk.rejected, (state, action) => {

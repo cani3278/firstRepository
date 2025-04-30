@@ -15,8 +15,15 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
-export const ManageProducts=()=>{
-
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { getAllCustomersThunk } from '../redux/slices/getAllCustomersThunk';
+import { TableHead } from '@mui/material';
+export const ManageCustomers=()=>{
+const dispatch = useDispatch();
+  useEffect(()=>{
+    dispatch(getAllCustomersThunk());
+  },[])
     function TablePaginationActions(props) {
         const theme = useTheme();
         const { count, page, rowsPerPage, onPageChange } = props;
@@ -78,25 +85,8 @@ export const ManageProducts=()=>{
         rowsPerPage: PropTypes.number.isRequired,
       };
       
-      function createData(name, calories, fat) {
-        return { name, calories, fat };
-      }
-      
-      const rows = [
-        createData('Cupcake', 305, 3.7),
-        createData('Donut', 452, 25.0),
-        createData('Eclair', 262, 16.0),
-        createData('Frozen yoghurt', 159, 6.0),
-        createData('Gingerbread', 356, 16.0),
-        createData('Honeycomb', 408, 3.2),
-        createData('Ice cream sandwich', 237, 9.0),
-        createData('Jelly Bean', 375, 0.0),
-        createData('KitKat', 518, 26.0),
-        createData('Lollipop', 392, 0.2),
-        createData('Marshmallow', 318, 0),
-        createData('Nougat', 360, 19.0),
-        createData('Oreo', 437, 18.0),
-      ].sort((a, b) => (a.calories < b.calories ? -1 : 1));
+          
+      const rows = useSelector(state => state.customer.custList);
       
     // function CustomPaginationActionsTable() {}
         const [page, setPage] = React.useState(0);
@@ -116,22 +106,54 @@ export const ManageProducts=()=>{
         };
 
     return <div>
-    <TableContainer component={Paper}sx={{ overflow:"hidden" }}>
+    <TableContainer component={Paper} sx={{ overflow:"hidden" }}>
       <Table sx={{ minWidth: 500,overflow:"hidden" }} aria-label="custom pagination table">
-        <TableBody>
+      <TableHead>
+             <TableRow > 
+             <TableCell style={{ width: 160 }} align="right">
+               Name
+              </TableCell>
+              <TableCell component="th" scope="row">
+                ID
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+                Number
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+                Address
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+               Email
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+               Phone
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
           {(rowsPerPage > 0
             ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             : rows
           ).map((row) => (
-            <TableRow key={row.name}>
+            <TableRow key={row.custId}> 
+            <TableCell style={{ width: 160 }} align="right">
+                {row.custName}
+              </TableCell>
               <TableCell component="th" scope="row">
-                {row.name}
+                {row.custId}
               </TableCell>
               <TableCell style={{ width: 160 }} align="right">
-                {row.calories}
+                {row.custNum}
+              </TableCell>
+              
+              <TableCell style={{ width: 160 }} align="right">
+                {row.custAddress}
               </TableCell>
               <TableCell style={{ width: 160 }} align="right">
-                {row.fat}
+                {row.custEmail}
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+                {row.custPhone}
               </TableCell>
             </TableRow>
           ))}
@@ -160,6 +182,7 @@ export const ManageProducts=()=>{
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
               ActionsComponent={TablePaginationActions}
+              style={{overflow:"hidden"}}
             />
           </TableRow>
         </TableFooter>
@@ -171,121 +194,3 @@ export const ManageProducts=()=>{
 
 }
 
-
-
-
-// import VpnKeyIcon from '@mui/icons-material/VpnKey';
-// import CarpenterIcon from '@mui/icons-material/Carpenter';
-// import HandymanIcon from '@mui/icons-material/Handyman';
-// import * as React from 'react';
-// import Table from '@mui/material/Table';
-// import TableBody from '@mui/material/TableBody';
-// import TableCell from '@mui/material/TableCell';
-// import TableContainer from '@mui/material/TableContainer';
-// import TableHead from '@mui/material/TableHead';
-// import TableRow from '@mui/material/TableRow';
-// import Paper from '@mui/material/Paper';
-// // import { TableVirtuoso } from 'react-virtuoso';
-// // import Chance from 'chance';
-
-// export const ManageProducts = () => {
-
-//     // const chance = new Chance(42);
-
-//     function createData(id) {
-//       return {
-//         id,
-//         firstName: chance.first(),
-//         lastName: chance.last(),
-//         age: chance.age(),
-//         phone: chance.phone(),
-//         state: chance.state({ full: true }),
-//       };
-//     }
-    
-//     const columns = [
-//       {
-//         width: 100,
-//         label: 'First Name',
-//         dataKey: 'firstName',
-//       },
-//       {
-//         width: 100,
-//         label: 'Last Name',
-//         dataKey: 'lastName',
-//       },
-//       {
-//         width: 50,
-//         label: 'Age',
-//         dataKey: 'age',
-//         numeric: true,
-//       },
-//       {
-//         width: 110,
-//         label: 'State',
-//         dataKey: 'state',
-//       },
-//       {
-//         width: 130,
-//         label: 'Phone Number',
-//         dataKey: 'phone',
-//       },
-//     ];
-    
-//     const rows = Array.from({ length: 200 }, (_, index) => createData(index));
-    
-//     const VirtuosoTableComponents = {
-//       Scroller: React.forwardRef((props, ref) => (
-//         <TableContainer component={Paper} {...props} ref={ref} />
-//       )),
-//       Table: (props) => (
-//         <Table {...props} sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />
-//       ),
-//       TableHead: React.forwardRef((props, ref) => <TableHead {...props} ref={ref} />),
-//       TableRow,
-//       TableBody: React.forwardRef((props, ref) => <TableBody {...props} ref={ref} />),
-//     };
-    
-//     function fixedHeaderContent() {
-//       return (
-//         <TableRow>
-//           {columns.map((column) => (
-//             <TableCell
-//               key={column.dataKey}
-//               variant="head"
-//               align={column.numeric || false ? 'right' : 'left'}
-//               style={{ width: column.width }}
-//               sx={{ backgroundColor: 'background.paper' }}
-//             >
-//               {column.label}
-//             </TableCell>
-//           ))}
-//         </TableRow>
-//       );
-//     }
-    
-//     function rowContent(_index, row) {
-//       return (
-//         <React.Fragment>
-//           {columns.map((column) => (
-//             <TableCell
-//               key={column.dataKey}
-//               align={column.numeric || false ? 'right' : 'left'}
-//             >
-//               {row[column.dataKey]}
-//             </TableCell>
-//           ))}
-//         </React.Fragment>
-//       );
-//     }
-//     return <div>
-//     <Paper style={{ height: 400, width: '100%' }}>
-//       <TableVirtuoso
-//         data={rows}
-//         components={VirtuosoTableComponents}
-//         fixedHeaderContent={fixedHeaderContent}
-//         itemContent={rowContent}
-//       />
-//     </Paper>
-//     </div>
-// }
