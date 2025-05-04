@@ -35,19 +35,79 @@ export const NewOrder = () => {
     direction: 'rtl',
     typography: {
       fontFamily: [
+        'Rubik',
+        'Assistant',
+        'Heebo',
         'Roboto',
         '"Segoe UI Symbol"',
       ].join(','),
     },
     palette: {
       primary: {
-        main: '#1976d2',
+        light: '#A0522D', // חום בהיר יותר
+        main: '#8B4513',  // חום בסיסי
+        dark: '#6B3E0A',  // חום כהה
+        contrastText: '#ffffff',
       },
       secondary: {
-        main: '#f50057',
+        light: '#CD5C5C', // אדום-חום בהיר
+        main: '#A52A2A',  // אדום-חום בסיסי (חום אדמדם)
+        dark: '#800000',  // אדום-חום כהה (בורדו)
+        contrastText: '#ffffff',
       },
       background: {
-        default: '#f5f5f5',
+        default: '#f9f5f0', // רקע בגוון קרם בהיר
+        paper: '#ffffff',
+      },
+      text: {
+        primary: '#333333',
+        secondary: '#666666',
+      },
+      error: {
+        main: '#B71C1C', // אדום כהה
+      },
+      warning: {
+        main: '#E65100', // כתום-חום
+      },
+      info: {
+        main: '#0D47A1', // כחול כהה
+      },
+      success: {
+        main: '#2E7D32', // ירוק כהה
+      },
+    },
+    shape: {
+      borderRadius: 8,
+    },
+    shadows: [
+      'none',
+      '0px 2px 4px rgba(139, 69, 19, 0.1)',
+      '0px 4px 8px rgba(139, 69, 19, 0.1)',
+      '0px 8px 16px rgba(139, 69, 19, 0.1)',
+      // ...שאר הצללים נשארים כברירת מחדל
+    ],
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+            fontWeight: 500,
+          },
+          contained: {
+            boxShadow: '0px 4px 6px rgba(139, 69, 19, 0.2)',
+            '&:hover': {
+              boxShadow: '0px 6px 10px rgba(139, 69, 19, 0.3)',
+            },
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            boxShadow: '0px 4px 8px rgba(139, 69, 19, 0.1)',
+            borderRadius: 8,
+          },
+        },
       },
     },
   });
