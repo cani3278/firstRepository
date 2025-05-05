@@ -3,6 +3,7 @@ import { logInThunk } from "./logInThunk";
 import { addCustomerThunk } from "./addCustomerThunk";
 import { getAllCustomersThunk } from "./getAllCustomersThunk";
 import { getAllemployeesThunk } from "./getAllEmployeesThunk";
+import { addEmployeeThunk } from "./addEmployeeThunk";
 
 export const INITAIL_STATE_CUSTOMER = {
     customername: "",
@@ -71,6 +72,26 @@ export const userSlice = createSlice({
         });
         // הוספת מקרה שהט'נק נכשל 
         builder.addCase(addCustomerThunk.rejected, (state, action) => {
+            state.CID = -2;
+            console.log("action: ", action);
+        });
+           //addEmployee
+        // הוספת מקרה שהט'נק התחיל
+        builder.addCase(addEmployeeThunk.pending, (state) => {
+        });
+        // הוספת מקרה שהט'נק הסתיים בהצלחה
+        builder.addCase(addEmployeeThunk.fulfilled, (state, action) => {
+            state.custDetails = action.payload;
+            if (state.custDetails.custId) {
+                state.CID = state.custDetails.custId;
+            }
+            if (state.custDetails.empId) {
+                state.EID = state.custDetails.empId;
+            }
+            state.sucsses = true;
+        });
+        // הוספת מקרה שהט'נק נכשל 
+        builder.addCase(addEmployeeThunk.rejected, (state, action) => {
             state.CID = -2;
             console.log("action: ", action);
         });
