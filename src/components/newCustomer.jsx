@@ -20,20 +20,20 @@ export const NewCustomer = () => {
         console.log(customername + "customername");
     }, [])
 
-    // useEffect(() => {
-    //     if (CID !== -1) {
-    //         navigate(`/Home`)
-    //     }
-    // }, [CID])
     useEffect(() => {
-        if (CID !== -1)
-            navigate(`Home`)
-        if (EID === 10000) {
-            navigate(`Manager`)
+        if (CID !== -1) {
+            navigate(`/Home`)
         }
-        if (EID !== -1 && EID !== 10000)
-            navigate(`service`)//employee    
-    }, [CID, EID])
+    }, [CID])
+    // useEffect(() => {
+    //     if (CID !== -1)
+    //         navigate(`Home`)
+    //     if (EID === 10000) {
+    //         navigate(`Manager`)
+    //     }
+    //     if (EID !== -1 && EID !== 10000)
+    //         navigate(`service`)//employee    
+    // }, [CID, EID])
     return <div className="newcustomer-container">
         <input className="newcustomerInput" type="text" value={customername} />
         <input className="newcustomerInput" type="text" value={password} />

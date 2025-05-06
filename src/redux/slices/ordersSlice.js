@@ -63,9 +63,8 @@ export const ordersSlice = createSlice({
             console.log("order action: ", action);
         });
         builder.addCase(UpdateSendingThunk.fulfilled, (state, action) => {
-            console.log("add order succeed");
-           
-            state.myOrders = action.payload;
+            console.log("update order succeed");
+      
       
             
         });

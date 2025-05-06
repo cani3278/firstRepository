@@ -25,9 +25,9 @@ export const Login = () => {
         if (EID !== -1 && EID !== 10000)
             navigate(`/listOrdersForEmployee`)//employee    
         if (CID === -1 && failed) {
-            setNewcustomer(true)
+            setNewcustomer(true);
             console.log(details);
-            navigate(`/newcustomer`)
+            navigate(`/newcustomer`);
         }
     }, [failed, CID, EID])
 
