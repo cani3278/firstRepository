@@ -184,7 +184,7 @@ export const Navigation = () => {
       <Divider />
       <List>
         {getMenuItems().map((item) => (
-          <ListItem button key={item.text} onClick={() => navigateTo(item.path)}>
+          <ListItem component="button" key={item.text} onClick={() => navigateTo(item.path)}>
             <ListItemIcon sx={{ color: userType === 'admin' ? '#f44336' : userType === 'employee' ? '#2196f3' : '#4caf50' }}>
               {item.icon}
             </ListItemIcon>
@@ -194,7 +194,7 @@ export const Navigation = () => {
       </List>
       <Divider />
       <List>
-        <ListItem button onClick={handleLogout}>
+        <ListItem component="button" onClick={handleLogout}>
           <ListItemIcon sx={{ color: '#757575' }}>
             <LogoutIcon />
           </ListItemIcon>
