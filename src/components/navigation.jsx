@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
@@ -89,13 +89,13 @@ const NavButton = styled(Button)(({ theme }) => ({
 }));
 
 export const Navigation = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  
+ 
   // קבלת פרטי המשתמש מה-Redux store
   const userType = useSelector(state => state.user?.userType || 'customer'); // 'admin', 'employee', 'customer'
-  const userName = useSelector(state => state.user?.custDetails?.custName || 'אורח');
-  
+  const userName = useSelector(state => state.user?.userDetails?.custName ||state.user?.userDetails?.ename|| 'אורח');
+  const userDetails = useSelector(state => state.user?.userDetails);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   // מצב התפריט הנייד
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorElUser, setAnchorElUser] = useState(null);
@@ -119,11 +119,12 @@ export const Navigation = () => {
   const handleLogout = () => {
     // כאן תוכל להוסיף את הלוגיקה של ההתנתקות
     // dispatch(logoutAction());
-    navigate('/login');
+    navigate('/welcome');
   };
 
   // ניווט לדפים שונים
   const navigateTo = (path) => {
+    console.log("navigateTo called with path:", path);
     navigate(path);
     setMobileOpen(false);
     handleCloseUserMenu();
@@ -132,27 +133,28 @@ export const Navigation = () => {
   // הגדרת תפריטים שונים לפי סוג המשתמש
   const getMenuItems = () => {
     const commonItems = [
-      { text: 'דף הבית', icon: <HomeIcon />, path: '/' },
+      { text: 'דף הבית', icon: <HomeIcon />, path: '/Home' },
     ];
 
     const customerItems = [
       { text: 'הזמנה חדשה', icon: <ShoppingCartIcon />, path: '/newOrder' },
-      { text: 'ההזמנות שלי', icon: <HistoryIcon />, path: '/Orders' },
+      { text: 'ההזמנות שלי', icon: <HistoryIcon />, path: '/oldOrders' },
       { text: 'הפרופיל שלי', icon: <PersonIcon />, path: '/profile' },
       { text: 'צור קשר', icon: <SupportAgentIcon />, path: '/contact' },
     ];
 
     const employeeItems = [
-      { text: 'הזמנות לקוחות', icon: <ShoppingCartIcon />, path: '/customerOrders' },
-      { text: 'ניהול מלאי', icon: <InventoryIcon />, path: '/inventory' },
+      { text: 'הזמנות לקוחות', icon: <ShoppingCartIcon />, path: '/empOrderList' },
+      { text: 'ניהול מלאי', icon: <InventoryIcon />, path: 'manage/manageProducts' },
       { text: 'תמיכת לקוחות', icon: <SupportAgentIcon />, path: '/support' },
     ];
 
     const adminItems = [
-      { text: 'ניהול משתמשים', icon: <PeopleIcon />, path: '/users' },
-      { text: 'ניהול מלאי', icon: <InventoryIcon />, path: '/inventory' },
-      { text: 'דוחות וסטטיסטיקות', icon: <BarChartIcon />, path: '/reports' },
-      { text: 'הגדרות מערכת', icon: <SettingsIcon />, path: '/settings' },
+      { text: 'ניהול עובדים', icon: <PeopleIcon />, path: 'manage/manageEmployees' },
+      { text: 'ניהול לקוחות', icon: <PeopleIcon />, path: 'manage/manageCustomers' },
+      { text: 'ניהול מלאי', icon: <InventoryIcon />, path: 'manage/manageProducts' },
+      { text: 'דוחות וסטטיסטיקות', icon: <BarChartIcon />, path: 'manage/reports' },
+      { text: 'הגדרות מערכת', icon: <SettingsIcon />, path: 'manage/settings' },
     ];
 
     switch (userType) {
@@ -237,7 +239,7 @@ export const Navigation = () => {
             
             {/* לוגו - מוצג בכל גודל מסך */}
             <Logo>
-              <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
+              <img src={`${process.env.PUBLIC_URL}/basisLabait.jpg`} alt="Logo" />
               בניה ישירה
             </Logo>
 

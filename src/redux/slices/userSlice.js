@@ -12,9 +12,10 @@ export const INITAIL_STATE_CUSTOMER = {
     EID: -1,
     sucsses: false,
     failed: false,
-    custDetails:{},
+    userDetails:{},
     custList:[],
-    empList:[]
+    empList:[],
+    userType:"",
 }
 export const userSlice = createSlice({
     name: 'user',
@@ -41,12 +42,20 @@ export const userSlice = createSlice({
         });
         // הוספת מקרה שהט'נק הסתיים בהצלחה
         builder.addCase(logInThunk.fulfilled, (state, action) => {
-            state.custDetails = action.payload;
-            if (state.custDetails.custId) {
-                state.CID = state.custDetails.custId;
+            state.userDetails = action.payload;
+            console.log(state.userDetails);
+            if (state.userDetails.custId) {
+                state.CID = state.userDetails.custId;
+                state.userType = "customer";
             }
-            if (state.custDetails.empId) {
-                state.EID = state.custDetails.empId;
+            if (state.userDetails.empId) {
+                state.EID = state.userDetails.empId;
+                if (state.userDetails.empId === 10000) {
+                    state.userType = "admin";
+                }
+                else {
+                    state.userType = "employee";
+                }
             }
             state.sucsses = true;
         });
@@ -61,12 +70,12 @@ export const userSlice = createSlice({
         });
         // הוספת מקרה שהט'נק הסתיים בהצלחה
         builder.addCase(addCustomerThunk.fulfilled, (state, action) => {
-            state.custDetails = action.payload;
-            if (state.custDetails.custId) {
-                state.CID = state.custDetails.custId;
+            state.userDetails = action.payload;
+            if (state.userDetails.custId) {
+                state.CID = state.userDetails.custId;
             }
-            if (state.custDetails.empId) {
-                state.EID = state.custDetails.empId;
+            if (state.userDetails.empId) {
+                state.EID = state.userDetails.empId;
             }
             state.sucsses = true;
         });
@@ -81,12 +90,12 @@ export const userSlice = createSlice({
         });
         // הוספת מקרה שהט'נק הסתיים בהצלחה
         builder.addCase(addEmployeeThunk.fulfilled, (state, action) => {
-            state.custDetails = action.payload;
-            if (state.custDetails.custId) {
-                state.CID = state.custDetails.custId;
+            state.userDetails = action.payload;
+            if (state.userDetails.custId) {
+                state.CID = state.userDetails.custId;
             }
-            if (state.custDetails.empId) {
-                state.EID = state.custDetails.empId;
+            if (state.userDetails.empId) {
+                state.EID = state.userDetails.empId;
             }
             state.sucsses = true;
         });

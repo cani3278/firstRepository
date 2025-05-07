@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom"
 import { Login } from "./login"
 import { Home } from "./Home"
 import { NewOrder } from "./newOrder"
-import { OldOrders } from "./oldOrders"
+import  OldOrders  from "./oldOrders"
 import { ServicePage } from "./servicePage"
 import { Manage } from "./manage"
 import { ManageProducts } from "./manageProducts"
@@ -11,6 +11,8 @@ import { ManageEmployees } from "./manageEmployees"
 import { NewCustomer } from "./newCustomer"
 import { EmpOrderList } from "./empOrderList"
 import { Welcome } from "./welcome"
+import  Reports  from "./reports"
+import  Settings  from "./settings"
 
 
 export const Routing = () => {
@@ -30,6 +32,8 @@ export const Routing = () => {
             <Route path='/Manage/ManageProducts' element={<ManageProducts />} />
             <Route path='/Manage/ManageCustomers' element={<ManageCustomers />} />
             <Route path='/Manage/ManageEmployees' element={<ManageEmployees />} />
+            <Route path='/Manage/Reports' element={<Reports />} />
+            <Route path='/Manage/Setting' element={<Settings />} />
             <Route path='/listOrdersForEmployee' element={<EmpOrderList />} />
             {/* <Route path="/" element={<Login />}/> */}
         </Routes>

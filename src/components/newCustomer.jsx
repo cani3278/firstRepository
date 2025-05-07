@@ -58,15 +58,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles/NewCustomer.css';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { 
-  FaUser, 
-  FaEnvelope, 
-  FaLock, 
-  FaIdCard, 
-  FaPhone, 
-  FaMapMarkerAlt, 
-  FaBuilding 
+import {
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaIdCard,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaBuilding
 } from 'react-icons/fa';
+import { addCustomerThunk } from "../redux/slices/addCustomerThunk";
+import { useDispatch, useSelector } from 'react-redux';
 
 export const NewCustomer = () => {
   const [formData, setFormData] = useState({
@@ -78,19 +80,31 @@ export const NewCustomer = () => {
     password: '',
     confirmPassword: ''
   });
-  
+  const dispatch = useDispatch();
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const navigate = useNavigate();
+  const customername = useSelector(state => state.user.customername);
+  const password = useSelector(state => state.user.password);
+  const CID = useSelector(state => state.user.CID);
 
-  // אתחול ספריית האנימציות
+  
   useEffect(() => {
+    // אתחול ספריית האנימציות
     AOS.init({
       duration: 800,
       once: false,
       mirror: true
     });
+    //אתחול הפרטים אם קיימים מניסיון התחברות
+    if (customername && password) {
+      setFormData({
+        ...formData,
+        custId: password,
+        custName: customername,
+        });
+    }
   }, []);
 
   const handleChange = (e) => {
@@ -103,78 +117,63 @@ export const NewCustomer = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     // בדיקת תעודת זהות
     if (!formData.custId) {
       newErrors.custId = 'יש להזין תעודת זהות';
     } else if (!/^\d{9}$/.test(formData.custId)) {
       newErrors.custId = 'תעודת זהות חייבת להכיל 9 ספרות';
     }
-    
+
     // בדיקת שם
     if (!formData.custName) {
       newErrors.custName = 'יש להזין שם מלא';
     }
-    
+
     // בדיקת אימייל
     if (!formData.custEmail) {
       newErrors.custEmail = 'יש להזין כתובת אימייל';
     } else if (!/\S+@\S+\.\S+/.test(formData.custEmail)) {
       newErrors.custEmail = 'יש להזין כתובת אימייל תקינה';
     }
-    
+
     // בדיקת טלפון
     if (!formData.custPhone) {
       newErrors.custPhone = 'יש להזין מספר טלפון';
     } else if (!/^0\d{8,9}$/.test(formData.custPhone)) {
       newErrors.custPhone = 'יש להזין מספר טלפון תקין';
     }
-    
+
     // בדיקת סיסמה
     if (!formData.password) {
       newErrors.password = 'יש להזין סיסמה';
     } else if (formData.password.length < 6) {
       newErrors.password = 'הסיסמה חייבת להכיל לפחות 6 תווים';
     }
-    
+
     // בדיקת אימות סיסמה
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'הסיסמאות אינן תואמות';
     }
-    
+
     return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const formErrors = validateForm();
     setErrors(formErrors);
-    
+
     if (Object.keys(formErrors).length === 0) {
       setIsSubmitting(true);
-      
+
       try {
-        // כאן תוכל להוסיף את הלוגיקה של שליחת הטופס לשרת
-        // לדוגמה:
-        // const response = await fetch('/api/customers', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({
-        //     custId: formData.custId,
-        //     custName: formData.custName,
-        //     custEmail: formData.custEmail,
-        //     custPhone: formData.custPhone,
-        //     custAddress: formData.custAddress,
-        //     password: formData.password
-        //   })
-        // });
-        
-        // if (!response.ok) throw new Error('שגיאה ברישום');
-        
+        dispatch(addCustomerThunk(formData));
+
         // הצגת הודעת הצלחה
         setSubmitSuccess(true);
-        
+
         // ניווט לדף ההתחברות לאחר 2 שניות
         setTimeout(() => {
           navigate('/login');
@@ -199,12 +198,12 @@ export const NewCustomer = () => {
         <div className="container">
           <div className="register-content" data-aos="fade-up">
             <div className="register-logo-container">
-              <img src={`${process.env.PUBLIC_URL}/basisLabait.jpg`} alt="בסיס לבית" className="register-logo" />
+              <img src={`${process.env.PUBLIC_URL}/basisLabait.jpg`} style={{height:"10%",}} alt="בסיס לבית" className="register-logo" />
             </div>
             <div className="register-form-container" data-aos="fade-up" data-aos-delay="200">
               <h2>הרשמה כלקוח חדש</h2>
               <p className="register-subtitle">מלא את הפרטים הבאים כדי ליצור חשבון חדש</p>
-              
+
               {submitSuccess ? (
                 <div className="success-message" data-aos="zoom-in">
                   <div className="success-icon">✓</div>
@@ -214,7 +213,7 @@ export const NewCustomer = () => {
               ) : (
                 <form onSubmit={handleSubmit} className="register-form">
                   {errors.submit && <div className="error-message">{errors.submit}</div>}
-                  
+
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="custId">
@@ -231,7 +230,7 @@ export const NewCustomer = () => {
                       />
                       {errors.custId && <div className="error-text">{errors.custId}</div>}
                     </div>
-                    
+
                     <div className="form-group">
                       <label htmlFor="custName">
                         <FaUser className="input-icon" /> שם מלא
@@ -248,7 +247,7 @@ export const NewCustomer = () => {
                       {errors.custName && <div className="error-text">{errors.custName}</div>}
                     </div>
                   </div>
-                  
+
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="custEmail">
@@ -265,7 +264,7 @@ export const NewCustomer = () => {
                       />
                       {errors.custEmail && <div className="error-text">{errors.custEmail}</div>}
                     </div>
-                    
+
                     <div className="form-group">
                       <label htmlFor="custPhone">
                         <FaPhone className="input-icon" /> טלפון
@@ -282,7 +281,7 @@ export const NewCustomer = () => {
                       {errors.custPhone && <div className="error-text">{errors.custPhone}</div>}
                     </div>
                   </div>
-                  
+
                   <div className="form-group full-width">
                     <label htmlFor="custAddress">
                       <FaMapMarkerAlt className="input-icon" /> כתובת
@@ -296,7 +295,7 @@ export const NewCustomer = () => {
                       placeholder="הזן כתובת מלאה"
                     />
                   </div>
-                  
+
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="password">
@@ -313,7 +312,7 @@ export const NewCustomer = () => {
                       />
                       {errors.password && <div className="error-text">{errors.password}</div>}
                     </div>
-                    
+
                     <div className="form-group">
                       <label htmlFor="confirmPassword">
                         <FaLock className="input-icon" /> אימות סיסמה
@@ -330,7 +329,7 @@ export const NewCustomer = () => {
                       {errors.confirmPassword && <div className="error-text">{errors.confirmPassword}</div>}
                     </div>
                   </div>
-                  
+
                   <div className="form-terms">
                     <label className="checkbox-container">
                       <input type="checkbox" required />
@@ -338,7 +337,7 @@ export const NewCustomer = () => {
                       אני מסכים/ה ל<Link to="/terms">תנאי השימוש</Link> ול<Link to="/privacy">מדיניות הפרטיות</Link>
                     </label>
                   </div>
-                  
+
                   <div className="form-actions">
                     <button type="submit" className="btn-register pulse-animation" disabled={isSubmitting}>
                       {isSubmitting ? 'מבצע רישום...' : 'הרשמה'}
@@ -346,7 +345,7 @@ export const NewCustomer = () => {
                   </div>
                 </form>
               )}
-              
+
               <div className="login-link" data-aos="fade-up" data-aos-delay="300">
                 <p>כבר יש לך חשבון?</p>
                 <Link to="/login" className="btn-login-link">התחברות למערכת</Link>

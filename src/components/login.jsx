@@ -417,7 +417,7 @@ export const Login = () => {
         }
         
         if (EID === 10000) {
-            navigate(`Manage`);
+            navigate(`/Manage`);
             return;
         }
         
@@ -449,6 +449,8 @@ export const Login = () => {
         console.log("dispatch(editcustomername(details.customername))");
         dispatch(logInThunk(details));
         console.log("dispatch(logInThunk(details))");
+        console.log("EID: " + EID);
+        console.log("CID: " + CID);
     };
 
     return (

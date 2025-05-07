@@ -27,7 +27,7 @@ export const Welcome = () => {
             <p data-aos="fade-up" data-aos-delay="300">הפלטפורמה המובילה להזמנת חומרי בניה, כלי עבודה וציוד מקצועי עבור חנויות, קבלנים ואנשי מקצוע</p>
             <div className="hero-buttons" data-aos="fade-up" data-aos-delay="400">
               <Link to="/login" className="btn btn-primary">התחברות למערכת</Link>
-              <Link to="/login" className="btn btn-secondary">הרשמה כלקוח חדש</Link>
+              <Link to="/newcustomer" className="btn btn-secondary">הרשמה כלקוח חדש</Link>
             </div>
           </div>
         </div>
@@ -231,7 +231,7 @@ export const Welcome = () => {
         <p data-aos="fade-up" data-aos-delay="100" data-aos-once="true">הצטרפו לאלפי הלקוחות המרוצים שלנו והתחילו ליהנות מפתרונות הרכש המתקדמים שלנו</p>
         <div className="cta-buttons" data-aos="fade-up" data-aos-delay="200">
           <Link to="/login" className="btn btn-primary">התחברות למערכת</Link>
-          <Link to="/login" className="btn btn-secondary">הרשמה כלקוח חדש</Link>
+          <Link to="/newcustomer" className="btn btn-secondary">הרשמה כלקוח חדש</Link>
         </div>
       </div>
     </div>
