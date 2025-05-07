@@ -402,7 +402,7 @@ export const Home = () => {
               <Link to="/newOrder" className="btn-primary">התחל בקנייה</Link>
             </div>
             <div className="banner-image">
-              <img src={`${process.env.PUBLIC_URL}/banner-image.jpg`} alt="בסיס לבית" />
+              <img  src={`${process.env.PUBLIC_URL}/basisLabait.jpg`} alt="בסיס לבית" />
             </div>
           </section>
 

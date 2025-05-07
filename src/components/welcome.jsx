@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Welcome.css';
 import AOS from 'aos';
-import { Height } from '@mui/icons-material';
 
 export const Welcome = () => {
   // אתחול ספריית האנימציות

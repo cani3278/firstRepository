@@ -365,13 +365,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import '../styles/NewOrder.css';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { getProductsThunk } from '../redux/slices/getProductsThunk';
+import { addOrderThunk } from "../redux/slices/addOrderThunk";
 
 export const NewOrder = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const products = useSelector(state=>state.Products.productsList);
+  const [categories, setCategories] = useState(['חומרי בניין', 'כלי עבודה', 'אינסטלציה', 'חשמל']);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [cart, setCart] = useState([]);
@@ -390,58 +392,24 @@ export const NewOrder = () => {
       navigate('/login');
       return;
     }
-    
-    // טעינת מוצרים וקטגוריות
-    fetchProducts();
-    fetchCategories();
-  }, [CID, navigate]);
+    // פונקציה לטעינת מוצרים מהשרת
+    dispatch(getProductsThunk());
+    setLoading(false);
+    }, []);
   
-  // פונקציה לטעינת מוצרים מהשרת
-  const fetchProducts = async () => {
-    try {
-      // כאן יש להחליף בקריאת API אמיתית
-      const response = await fetch('/api/products');
-      const data = await response.json();
-      setProducts(data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      // לצורך הדוגמה - מוצרים לדוגמה
-      setProducts([
-        { id: 1, name: 'מלט פורטלנד', category: 'חומרי בניין', price: 29.99, image: '/cement.jpg', stock: 150 },
-        { id: 2, name: 'בלוקים 20 ס"מ', category: 'חומרי בניין', price: 4.50, image: '/blocks.jpg', stock: 500 },
-        { id: 3, name: 'פטיש 5 ק"ג', category: 'כלי עבודה', price: 89.99, image: '/hammer.jpg', stock: 30 },
-        { id: 4, name: 'מקדחה חשמלית', category: 'כלי עבודה', price: 249.99, image: '/drill.jpg', stock: 25 },
-        { id: 5, name: 'צינור PVC 50 מ"מ', category: 'אינסטלציה', price: 12.99, image: '/pipe.jpg', stock: 200 },
-        { id: 6, name: 'ברז כיור', category: 'אינסטלציה', price: 79.99, image: '/faucet.jpg', stock: 45 },
-        { id: 7, name: 'כבל חשמל 2.5 ממ"ר', category: 'חשמל', price: 3.99, image: '/cable.jpg', stock: 300 },
-        { id: 8, name: 'מפסק כפול', category: 'חשמל', price: 19.99, image: '/switch.jpg', stock: 120 },
-      ]);
-      setLoading(false);
-    }
-  };
   
-  // פונקציה לטעינת קטגוריות מהשרת
-  const fetchCategories = async () => {
-    try {
-      // כאן יש להחליף בקריאת API אמיתית
-      const response = await fetch('/api/categories');
-      const data = await response.json();
-      setCategories(data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      // קטגוריות לדוגמה
-      setCategories(['חומרי בניין', 'כלי עבודה', 'אינסטלציה', 'חשמל']);
-    }
-  };
+
+ 
+  
+
   
   // פונקציה להוספת מוצר לסל
   const addToCart = (product) => {
-    const existingItem = cart.find(item => item.id === product.id);
+    const existingItem = cart.find(item => item.prodId === product.prodId);
     
     if (existingItem) {
       setCart(cart.map(item => 
-        item.id === product.id 
+        item.prodId === product.prodId 
           ? { ...item, quantity: item.quantity + 1 } 
           : item
       ));
@@ -452,7 +420,7 @@ export const NewOrder = () => {
   
   // פונקציה להסרת מוצר מהסל
   const removeFromCart = (productId) => {
-    setCart(cart.filter(item => item.id !== productId));
+    setCart(cart.filter(item => item.prodId !== productId));
   };
   
   // פונקציה לעדכון כמות של מוצר בסל
@@ -460,16 +428,16 @@ export const NewOrder = () => {
     if (newQuantity < 1) return;
     
     setCart(cart.map(item => 
-      item.id === productId 
+      item.prodId === productId 
         ? { ...item, quantity: newQuantity } 
         : item
     ));
   };
   
   // פונקציה לסינון מוצרים לפי קטגוריה וחיפוש
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = products?.filter(product => {
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = product.pname.includes(searchTerm);
     return matchesCategory && matchesSearch;
   });
   
@@ -484,27 +452,20 @@ export const NewOrder = () => {
     }
     
     try {
-      // כאן יש להחליף בקריאת API אמיתית
-      const orderData = {
-        customerId: CID,
-        items: cart.map(item => ({
-          productId: item.id,
-          quantity: item.quantity,
-          price: item.price
-        })),
-        totalAmount: cartTotal
-      };
-      
-      // שליחת ההזמנה לשרת
-      // const response = await fetch('/api/orders', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(orderData)
-      // });
-      
-      // if (!response.ok) throw new Error('שגיאה בשליחת ההזמנה');
-      
-      // אישור הזמנה
+     
+      dispatch(addOrderThunk({
+                details: cart.map(item => ({
+                  "prodId": item.prodId,
+                  "prodName": "string",
+                  "prodPic": "string",
+                  "orderId": 0,
+                  "count": item.quantity,
+                  "cost": 0
+                })),
+                id: CID,
+                  employeeId:1002// employee
+              }));
+     // אישור הזמנה
       alert('ההזמנה נשלחה בהצלחה!');
       setCart([]);
       navigate('/orders');
@@ -535,9 +496,6 @@ export const NewOrder = () => {
           </div>
         </div>
         <div className="header-wave">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-            <path fill="#ffffff" fillOpacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-          </svg>
         </div>
       </div>
       
@@ -573,15 +531,15 @@ export const NewOrder = () => {
               <div className="products-grid">
                 {filteredProducts.length > 0 ? (
                   filteredProducts.map(product => (
-                    <div className="product-card" key={product.id} data-aos="fade-up">
+                    <div className="product-card" key={product.prodId} data-aos="fade-up">
                       <div className="product-image">
-                        <img src={`${process.env.PUBLIC_URL}${product.image}`} alt={product.name} />
+                        <img src={`${`https://localhost:7064/img/${product.ppicture}`}`} alt={product.name} />
                       </div>
                       <div className="product-details">
-                        <h3>{product.name}</h3>
-                        <p className="product-category">{product.category}</p>
-                        <p className="product-price">₪{product.price.toFixed(2)}</p>
-                        <p className="product-stock">במלאי: {product.stock}</p>
+                        <h3>{product.pname}</h3>
+                        <p className="product-category">כלי עבודה</p> {/*{product.category} */}
+                         <p className="product-price">₪ 10</p>{/*product.price.toFixed(2) */}
+                        <p className="product-stock">במלאי: {product.psum}</p>
                       </div>
                       <button 
                         className="add-to-cart-btn"
@@ -608,35 +566,35 @@ export const NewOrder = () => {
                   <>
                     <div className="cart-items">
                       {cart.map(item => (
-                        <div className="cart-item" key={item.id}>
+                        <div className="cart-item" key={item.prodId}>
                           <div className="item-image">
-                            <img src={`${process.env.PUBLIC_URL}${item.image}`} alt={item.name} />
+                            <img src={`${process.env.PUBLIC_URL}${item.image}`} alt={item.pname} />
                           </div>
                           <div className="item-details">
-                            <h4>{item.name}</h4>
-                            <p className="item-price">₪{item.price.toFixed(2)}</p>
+                            <h4>{item.pname}</h4>
+                            <p className="item-price">₪10</p>
                           </div>
                           <div className="item-quantity">
                             <button 
                               className="quantity-btn"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.prodId, item.quantity - 1)}
                             >
                               -
                             </button>
                             <span>{item.quantity}</span>
                             <button 
                               className="quantity-btn"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.prodId, item.quantity + 1)}
                             >
                               +
                             </button>
                           </div>
                           <div className="item-total">
-                            ₪{(item.price * item.quantity).toFixed(2)}
+                            ₪{(10 * item.quantity)}
                           </div>
                           <button 
                             className="remove-btn"
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => removeFromCart(item.prodId)}
                           >
                             <i className="fas fa-trash-alt"></i>
                           </button>
@@ -651,7 +609,7 @@ export const NewOrder = () => {
                       </div>
                       <div className="summary-row">
                         <span>סה"כ לתשלום:</span>
-                        <span className="cart-total">₪{cartTotal.toFixed(2)}</span>
+                        <span className="cart-total">₪100</span>
                       </div>
                     </div>
                     

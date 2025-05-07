@@ -757,10 +757,10 @@ import HistoryIcon from '@mui/icons-material/History';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import PendingIcon from '@mui/icons-material/Pending';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { getOrdersThunk } from '../redux/slices/getOrdersThunk';
+import { useNavigate } from 'react-router-dom';
 
 // סטיילים מותאמים אישית
 const PageHeader = styled('div')(({ theme }) => ({
@@ -858,27 +858,27 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 // קומפוננטה ראשית
 const OldOrders = () => {
+
   const orders = useSelector(state => state.Orders.myOrders);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState({});
   const [tabValue, setTabValue] = useState(0);
   const dispatch = useDispatch();
-  const id=useSelector(state=>state.user?.custDetails?.custId);
   // מידע המשתמש מ-Redux
   const userId = useSelector(state => state.user?.CID);
-
+  const navigate = useNavigate();
   useEffect(() => {
     // כאן תהיה קריאה לשרת להביא את ההזמנות של המשתמש
-    // לצורך הדוגמה, נשתמש בנתונים מדומים
     const fetchOrders = async () => {
       try {
-        dispatch(getOrdersThunk(id));
-       // אתחול מצב ההרחבה של כל הזמנה
+        dispatch(getOrdersThunk(userId));
+        // אתחול מצב ההרחבה של כל הזמנה
         const expandedState = {};
         orders.forEach(order => {
           expandedState[order.orderId] = false;
         });
         setExpanded(expandedState);
+        setLoading(false);
       } catch (error) {
         console.error('שגיאה בטעינת ההזמנות:', error);
         setLoading(false);
@@ -899,36 +899,24 @@ const OldOrders = () => {
     setTabValue(newValue);
   };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircleIcon />;
-      case 'processing':
-        return <LocalShippingIcon />;
-      case 'pending':
-        return <PendingIcon />;
-      default:
-        return <ReceiptIcon />;
-    }
+  const getStatusIcon = (sent) => {
+    if (sent)
+      return <CheckCircleIcon />;
+    else
+      return <LocalShippingIcon />;
   };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'completed':
-        return 'הושלמה';
-      case 'processing':
-        return 'בטיפול';
-      case 'pending':
-        return 'ממתינה לאישור';
-      default:
-        return 'לא ידוע';
-    }
+  const getStatusText = (sent) => {
+    if (sent)
+      return 'הושלמה';
+    else
+      return 'בטיפול';
   };
 
   const filterOrders = () => {
     if (tabValue === 0) return orders; // כל ההזמנות
-    if (tabValue === 1) return orders.filter(order => order.status === 'completed'); // הזמנות שהושלמו
-    if (tabValue === 2) return orders.filter(order => ['pending', 'processing'].includes(order.status)); // הזמנות פעילות
+    if (tabValue === 1) return orders.filter(order => order.sent); // הזמנות שהושלמו
+    if (tabValue === 2) return orders.filter(order => !order.sent); // הזמנות פעילות
     return orders;
   };
 
@@ -999,9 +987,9 @@ const OldOrders = () => {
               </Box>
               <Box display="flex" alignItems="center">
                 <OrderStatus
-                  label={getStatusText(order.status)}
-                  status={order.status}
-                  icon={getStatusIcon(order.status)}
+                  label={getStatusText(order.sent)}
+                  status={order.sent}
+                  icon={getStatusIcon(order.sent)}
                 />
               </Box>
             </OrderHeader>
@@ -1010,12 +998,12 @@ const OldOrders = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body2" color="textSecondary">
-                    מספר פריטים: {order.items?.length}
+                    מספר פריטים: {/*{order.items?.length} */}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
                   <Typography variant="h6" fontWeight="bold">
-                    {/* סה"כ: ₪{order.totalAmount.toFixed(2)} */}
+                    סה"כ: ₪{/*{order.totalAmount.toFixed(2)} */}
                   </Typography>
                 </Grid>
               </Grid>
@@ -1033,7 +1021,7 @@ const OldOrders = () => {
               </Button>
               <Button
                 size="small"
-                disabled={order.status === 'completed'}
+                disabled={order.sent}
               >
                 מעקב הזמנה
               </Button>
@@ -1141,7 +1129,7 @@ const OldOrders = () => {
                           כרטיס אשראי (מסתיים ב-1234)
                         </Typography>
                       </Grid>
-                      {order.status === 'processing' && (
+                      {order.sent === 0 && (
                         <Grid item xs={12}>
                           <Box mt={1} p={1.5} bgcolor="rgba(33, 150, 243, 0.1)" borderRadius={1}>
                             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1163,7 +1151,7 @@ const OldOrders = () => {
                   >
                     הורד חשבונית
                   </Button>
-                  {order.status === 'pending' && (
+                  {/* {order.status === 'pending' && (
                     <Button
                       variant="outlined"
                       color="error"
@@ -1171,7 +1159,7 @@ const OldOrders = () => {
                     >
                       בטל הזמנה
                     </Button>
-                  )}
+                  )} */}
                 </Box>
               </CardContent>
             </Collapse>
@@ -1185,7 +1173,7 @@ const OldOrders = () => {
             variant="contained"
             color="primary"
             startIcon={<ShoppingCartIcon />}
-            onClick={() => window.location.href = '/newOrder'}
+            onClick={() => navigate('/newOrder')}
           >
             הזמנה חדשה
           </Button>

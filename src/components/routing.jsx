@@ -13,6 +13,7 @@ import { EmpOrderList } from "./empOrderList"
 import { Welcome } from "./welcome"
 import  Reports  from "./reports"
 import  Settings  from "./settings"
+import Profile from "./Profile"
 
 
 export const Routing = () => {
@@ -24,6 +25,7 @@ export const Routing = () => {
             <Route path='/newcustomer' element={<NewCustomer />} />
             <Route path='/welcome' element={<Welcome />} />
             <Route path='/Home' element={<Home />} />
+            <Route path='/Profile' element={<Profile/>} />
             <Route path='/newOrder' element={<NewOrder />} />
             <Route path='/Orders' element={<OldOrders />} />
             <Route path='/Manage/ManageCustomers/custOrderList' element={<OldOrders />} />
