@@ -323,14 +323,17 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import { Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { getNewOrdersForEmpThunk } from "../redux/slices/getNewOrdersForEmp";
+import { assignOrdersToEmpThunk } from "../redux/slices/assignOrdersToEmpThunk";
+import { getCompletedOrdersForEmpThunk } from "../redux/slices/getCompletedOrdersForEmpThunk";
 
 export const EmpOrderList = () => {
   const EID = useSelector(state => state.user.EID);
-  const ordersToSend = useSelector(state => state.Orders.newOrders);
+  const ordersToSend = useSelector(state => state.Orders.myOrders);
   const details = useSelector(state => state.Orders.orderDetail);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const UnassignedOrders = useSelector(state => state.Orders.newOrders);
+  const completedOrders = useSelector(state => state.Orders.completedOrders);
   const [hasDetails, setHasDetails] = useState([]);
   const [tabValue, setTabValue] = useState(0);
   const [showCompletedOrders, setShowCompletedOrders] = useState(false);
@@ -459,7 +462,7 @@ export const EmpOrderList = () => {
   const handleImportCompletedOrders = () => {
     setShowCompletedOrders(true);
     // Here you would dispatch an action to fetch completed orders
-    // dispatch(getCompletedOrdersThunk(EID));
+    dispatch(getCompletedOrdersForEmpThunk(EID));
   };
 
   const handleImportUnassignedOrders = () => {
@@ -477,10 +480,11 @@ export const EmpOrderList = () => {
   };
 
   const handleImportSelectedUnassignedOrders = () => {
+    console.log("assignedOrders");
     if (selectedUnassignedOrders.length > 0) {
-      // כאן היית שולח בקשה לשיוך ההזמנות לעובד
+      console.log("assignedOrders");
       dispatch(assignOrdersToEmpThunk({ 
-        empId: EID, 
+        empID: EID, 
         orderIds: selectedUnassignedOrders 
       })).then(() => {
         dispatch(getOrdersForEmpThunk(EID));
@@ -488,7 +492,6 @@ export const EmpOrderList = () => {
         setSelectedUnassignedOrders([]);
       });
       
-      // לצורך הדוגמה, פשוט נסגור את החלונית
       setShowUnassignedOrdersModal(false);
       setSelectedUnassignedOrders([]);
     }
@@ -614,17 +617,128 @@ export const EmpOrderList = () => {
         )}
 
         {tabValue === 1 && showCompletedOrders && (
-          <Alert severity="info" sx={{ mt: 2, borderRadius: 2 }}>
-            <AlertTitle>הזמנות שבוצעו</AlertTitle>
-            כאן יוצגו ההזמנות שכבר בוצעו לאחר ייבוא הנתונים
+          // <Alert severity="info" sx={{ mt: 2, borderRadius: 2 }}>
+          //   <AlertTitle>הזמנות שבוצעו</AlertTitle>
+          //   כאן יוצגו ההזמנות שכבר בוצעו לאחר ייבוא הנתונים
+          //   </Alert>
+          <>
+          {completedOrders && completedOrders.length > 0 ? (
+            <Card elevation={3}>
+              <CardContent>
+                <TableContainer component={Paper} sx={{ direction: "rtl", borderRadius: 2, overflow: "hidden" }}>
+                  <Table sx={{ minWidth: 650 }} aria-label="orders table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="right">מספר הזמנה</TableCell>
+                        <TableCell align="right">תאריך</TableCell>
+                        <TableCell align="right">סטטוס</TableCell>
+                        <TableCell align="right">שם הלקוח</TableCell>
+                        <TableCell align="right">מייל לפניות</TableCell>
+                        <TableCell align="right">פרטי הזמנה</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {completedOrders?.map((row, index) => (
+                        <StyledTableRow key={row.orderId}>
+                          <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+                            <Chip label={row.orderId} color="primary" variant="outlined" />
+                          </TableCell>
+                          <TableCell align="right">{row.orderDate}</TableCell>
+                          <TableCell align="right">
+                            <Tooltip title="אשר בעת שליחת המשלוח">
+                              <span
+                                variant="contained"
+                                color="success"
+                                startIcon={<SendIcon />}
+                                onClick={() => sendOrder(row.orderId)}
+                                sx={{ borderRadius: '20px' }}
+                              >
+                                שלח
+                              </span>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell align="right">{row.nameToConnection}</TableCell>
+                          <TableCell align="right">{row.emailToConnection}</TableCell>
+                          <TableCell align="right">
+                            פרטי ההזמנה הישנה:(
+                           </TableCell>
+                        </StyledTableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </CardContent>
+            </Card>
+          ) : (
+            <Alert severity="info" sx={{ mt: 2, borderRadius: 2 }}>
+              <AlertTitle>אין הזמנות</AlertTitle>
+              לא נמצאו הזמנות שכבר בוצעו עבור עובד זה
             </Alert>
+          )}
+        </>
         )}
 
-        {tabValue === 2 && showUnassignedOrders && (
-          <Alert severity="info" sx={{ mt: 2, borderRadius: 2 }}>
-            <AlertTitle>הזמנות לא משויכות</AlertTitle>
-            כאן יוצגו ההזמנות שלא משויכות לאף עובד לאחר ייבוא הנתונים
-          </Alert>
+        {tabValue === 2 &&
+         showUnassignedOrders && (
+          // <Alert severity="info" sx={{ mt: 2, borderRadius: 2 }}>
+          //   <AlertTitle>הזמנות לא משויכות</AlertTitle>
+          //   כאן יוצגו ההזמנות שלא משויכות לאף עובד לאחר ייבוא הנתונים
+          // </Alert>
+          <>
+          {UnassignedOrders && UnassignedOrders.length > 0 ? (
+            <Card elevation={3}>
+              <CardContent>
+                <TableContainer component={Paper} sx={{ direction: "rtl", borderRadius: 2, overflow: "hidden" }}>
+                  <Table sx={{ minWidth: 650 }} aria-label="orders table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="right">מספר הזמנה</TableCell>
+                        <TableCell align="right">תאריך</TableCell>
+                        <TableCell align="right">סטטוס</TableCell>
+                        <TableCell align="right">שם הלקוח</TableCell>
+                        <TableCell align="right">מייל לפניות</TableCell>
+                        <TableCell align="right">פרטי הזמנה</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {UnassignedOrders?.map((row, index) => (
+                        <StyledTableRow key={row.orderId}>
+                          <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+                            <Chip label={row.orderId} color="primary" variant="outlined" />
+                          </TableCell>
+                          <TableCell align="right">{row.orderDate}</TableCell>
+                          <TableCell align="right">
+                            <Tooltip title="אשר בעת שליחת המשלוח">
+                              <span
+                                variant="contained"
+                                color="success"
+                                startIcon={<SendIcon />}
+                                onClick={() => sendOrder(row.orderId)}
+                                sx={{ borderRadius: '20px' }}
+                              >
+                                שלח
+                              </span>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell align="right">{row.nameToConnection}</TableCell>
+                          <TableCell align="right">{row.emailToConnection}</TableCell>
+                          <TableCell align="right">
+                            פרטי ההזמנה הישנה
+                          </TableCell>
+                        </StyledTableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </CardContent>
+            </Card>
+          ) : (
+            <Alert severity="info" sx={{ mt: 2, borderRadius: 2 }}>
+              <AlertTitle>אין הזמנות</AlertTitle>
+              לא נמצאו הזמנות שכבר בוצעו עבור עובד זה
+            </Alert>
+          )}
+        </>
         )}
 
         {/* Modal for completed orders - would be implemented when backend is ready */}
@@ -671,18 +785,6 @@ export const EmpOrderList = () => {
           </DialogActions>
         </Dialog>
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          {EID !== 0 && (
-            <Button 
-              variant="outlined" 
-              color="primary" 
-              onClick={() => navigate("../")}
-              sx={{ borderRadius: 8, px: 4 }}
-            >
-              חזרה לדף הניהול
-            </Button>
-          )}
-        </Box>
       </Container>
     </ThemeProvider>
   );

@@ -675,83 +675,6 @@ export const ManageProducts = () => {
     }
   };
 
-  // const uploadImage = async () => {
-  //   if (!selectedImage) {
-  //     setSnackbar({
-  //       open: true,
-  //       message: 'אנא בחר תמונה',
-  //       severity: 'warning'
-  //     });
-  //     return null;
-  //   }
-
-  //   setUploadingImage(true);
-
-  //   const formData = new FormData();
-  //   formData.append('file', selectedImage);
-
-  //   // try {
-  //   //      const response = await fetch('https://localhost:7064/api/Img/upload', {
-  //   //     headers: {
-  //   //       'Content-Type': 'multipart/form-data'
-  //   //     },
-  //   //     method: 'POST',
-  //   //     body: formData,
-  //   //   });
-
-  //   // try {
-  //   //   const response = await fetch('https://localhost:7064/api/Img/upload', {
-  //   //     method: 'POST',
-  //   //     body: formData, // FormData will automatically set the correct Content-Type
-  //   //   });
-    
-  //   //   if (!response.ok) {
-  //   //     throw new Error(`HTTP error! status: ${response.status}`);
-  //   //   }
-    
-  //   //   const data = await response.json();
-  //   //   console.log(data);
-  //   // } catch (error) {
-  //   //   console.error('Error:', error);
-  //   // }
-  //   try {
-  //     const response = await fetch('https://localhost:7064/api/Img/upload', {
-  //       method: 'POST',
-  //       body: formData,
-  //     });
-    
-  //     if (!response.ok) {
-  //       const errorText = await response.text();
-  //       console.error('Error:', errorText);
-  //       throw new Error(`HTTP error! status: ${response.status}`);
-  //     }
-    
-  //     const data = await response.json();
-  //     console.log('Success:', data);
-    
-  //     setUploadingImage(false);
-
-  //     if (response.data && response.data.imageUrl) {
-  //       setSnackbar({
-  //         open: true,
-  //         message: 'התמונה הועלתה בהצלחה',
-  //         severity: 'success'
-  //       });
-  //       return response.data.imageUrl;
-  //     }
-  //   } catch (error) {
-    
-  //       console.error('Error:', error);
-      
-  //     setUploadingImage(false);
-  //     setSnackbar({
-  //       open: true,
-  //       message: 'שגיאה בהעלאת התמונה',
-  //       severity: 'error'
-  //     });
-  //     return null;
-  //   }
-  // };
   const uploadImage = async () => {
     if (!selectedImage) {
       setSnackbar({
@@ -768,10 +691,8 @@ export const ManageProducts = () => {
     formData.append('file', selectedImage); // שינוי מ-'image' ל-'file'
   
     try {
-      // שימוש ב-fetch
       const response = await fetch('https://localhost:7064/api/Img/upload', {
         method: 'POST',
-        // אין צורך לציין Content-Type כאן, fetch יגדיר אותו אוטומטית עם boundary
         body: formData,
       });
   
@@ -1020,51 +941,7 @@ export const ManageProducts = () => {
                       }}
                     />
                   )}
-             {/* <StyledCardMedia
-  component="img"  // Add this line to specify it's an image
-  src={product.ppicture} // Use src instead of image and provide a fallback
-  alt={product.pname}
-  sx={{ height: 140, objectFit: 'contain' }} // Control height with sx prop
-/> */}
-{/* <CardMedia
-  component="img"
-  height={180}
-  image={product.ppicture} // שים לב - ללא תוספות
-  alt={product.pname}
-  onError={(e) => {
-    e.target.src = 'https://placehold.co/300x180/cccccc/333333?text=No+Image';
-  }}
-  sx={{
-    objectFit: 'cover',
-    objectPosition: 'center',
-  }}
-/> */}
-    {/* <CardMedia
-                      component="img"
-                      height={180}
-                      image={product.ppicture}
-                      alt={product.pname}
-                      sx={{
-                        objectFit: 'cover',
-                        objectPosition: 'center',
-                      }}
-                    /> */}
-{/* <img 
-  src={product.ppicture} 
-  alt={product.pname}
-  style={{ width: '100%', height: '140px', objectFit: 'contain' }}
-/> */}
-{/* <Box
-  component="img"
-  src={product.ppicture}
-  alt={product.pname}
-  sx={{
-    width: '100%',
-    height: 140,
-    objectFit: 'contain',
-    backgroundColor: '#FFF'
-  }}
-/> */}
+          
 <StyledCardMedia
   component="img"
   image={`https://localhost:7064/img/${product.ppicture}`}
@@ -1090,11 +967,11 @@ export const ManageProducts = () => {
                         color={product.psum > 10 ? "success" : product.psum > 0 ? "warning" : "error"}
                         variant="outlined"
                       />
-                    </Box>
+                    
                     {/* <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                       קטגוריה: {product.pcategory}
                     </Typography> */}
-                  </CardContent >
+                 
                   <Divider />
                   <CardActions sx={{ justifyContent: 'space-between', p: 1 }}>
                     <Tooltip title="עדכון כמות">
@@ -1114,6 +991,9 @@ export const ManageProducts = () => {
                       </IconButton>
                     </Tooltip> */}
                   </CardActions>
+                   </Box>
+                  </CardContent >
+                 
                 </ProductCard>
               </Grid>
             ))}
