@@ -111,7 +111,7 @@
 //       alert("לא נקלטה הזמנה");
 //     }
 //   };
-  
+
 //   const handleImageError = (event) => {
 //     event.target.src = 'https://placehold.co/300x180/cccccc/333333?text=No+Image';
 //   };
@@ -156,7 +156,7 @@
 //               const orderItem = myOrders.find(item => item.prodId === product.prodId) || { count: 0 };
 
 //               return (
-               
+
 //                 <Grid item xs={12} sm={6} md={3} key={product.prodId}> 
 //                   <Card
 //                     elevation={4}
@@ -199,9 +199,9 @@
 
 
 //                     <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                 
+
 //                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            
+
 //                                     <IconButton color="primary"
 //                           onClick={() => handleQuantityChange(product.prodId, 1)}
 //                         // sx={{ '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.04)' } }}
@@ -367,18 +367,24 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { getProductsThunk } from '../redux/slices/getProductsThunk';
 import { addOrderThunk } from "../redux/slices/addOrderThunk";
+import { getEmployeesThunk } from '../redux/slices/getEmployeesThunk';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 export const NewOrder = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
-  const products = useSelector(state=>state.Products.productsList);
+  const products = useSelector(state => state.Products.productsList);
   const [categories, setCategories] = useState(['חומרי בניין', 'כלי עבודה', 'אינסטלציה', 'חשמל']);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [cart, setCart] = useState([]);
   const CID = useSelector(state => state.user.CID);
-  
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
+  const employees = useSelector(state => state.Employees.employees);
+  const [listEmps, setListEmps] = useState(false);
+  const [employee, setEmployee] = useState(null);
+
   // אתחול ספריית האנימציות
   useEffect(() => {
     AOS.init({
@@ -386,7 +392,7 @@ export const NewOrder = () => {
       once: false,
       mirror: true
     });
-    
+
     // בדיקה אם המשתמש מחובר
     if (CID === -1) {
       navigate('/login');
@@ -395,77 +401,90 @@ export const NewOrder = () => {
     // פונקציה לטעינת מוצרים מהשרת
     dispatch(getProductsThunk());
     setLoading(false);
-    }, []);
-  
-  
+  }, []);
 
- 
-  
 
-  
+
+
+
+
+
   // פונקציה להוספת מוצר לסל
   const addToCart = (product) => {
+    getEmps();
     const existingItem = cart.find(item => item.prodId === product.prodId);
-    
+
     if (existingItem) {
-      setCart(cart.map(item => 
-        item.prodId === product.prodId 
-          ? { ...item, quantity: item.quantity + 1 } 
+      setCart(cart.map(item =>
+        item.prodId === product.prodId
+          ? { ...item, quantity: item.quantity + 1 }
           : item
       ));
     } else {
       setCart([...cart, { ...product, quantity: 1 }]);
     }
   };
-  
+
   // פונקציה להסרת מוצר מהסל
   const removeFromCart = (productId) => {
     setCart(cart.filter(item => item.prodId !== productId));
   };
-  
+
   // פונקציה לעדכון כמות של מוצר בסל
   const updateQuantity = (productId, newQuantity) => {
     if (newQuantity < 1) return;
-    
-    setCart(cart.map(item => 
-      item.prodId === productId 
-        ? { ...item, quantity: newQuantity } 
+
+    setCart(cart.map(item =>
+      item.prodId === productId
+        ? { ...item, quantity: newQuantity }
         : item
     ));
   };
-  
+
   // פונקציה לסינון מוצרים לפי קטגוריה וחיפוש
   const filteredProducts = products?.filter(product => {
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
     const matchesSearch = product.pname.includes(searchTerm);
     return matchesCategory && matchesSearch;
   });
-  
+
   // חישוב סכום ההזמנה
   const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-  
+  //employees
+  const getEmps = () => {
+    dispatch(getEmployeesThunk());
+    console.log(employees);
+    setListEmps(true);
+  }
+  const handleEmployeeChange = (event) => {
+    setListEmps(true);
+console.log(event.target.value);
+    setEmployee(event.target.value);
+  };
+
+
   // פונקציה לשליחת ההזמנה
   const submitOrder = async () => {
     if (cart.length === 0) {
       alert('הסל ריק. אנא הוסף מוצרים לפני שליחת ההזמנה.');
       return;
     }
-    
+
     try {
-     
+
       dispatch(addOrderThunk({
-                details: cart.map(item => ({
-                  "prodId": item.prodId,
-                  "prodName": "string",
-                  "prodPic": "string",
-                  "orderId": 0,
-                  "count": item.quantity,
-                  "cost": 0
-                })),
-                id: CID,
-                  employeeId:1002// employee
-              }));
-     // אישור הזמנה
+        details: cart.map(item => ({
+          "prodId": item.prodId,
+          "prodName": "string",
+          "prodPic": "string",
+          "orderId": 0,
+          "count": item.quantity,
+          "cost": 0
+        })),
+        id: CID,
+        empId: employee ? employee : 0
+      }));
+      // אישור הזמנה
       alert('ההזמנה נשלחה בהצלחה!');
       setCart([]);
       navigate('/orders');
@@ -474,7 +493,7 @@ export const NewOrder = () => {
       alert('אירעה שגיאה בשליחת ההזמנה. אנא נסה שנית.');
     }
   };
-  
+
   // תצוגת טעינה
   if (loading) {
     return (
@@ -484,7 +503,7 @@ export const NewOrder = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="new-order-page">
       {/* כותרת הדף */}
@@ -498,7 +517,7 @@ export const NewOrder = () => {
         <div className="header-wave">
         </div>
       </div>
-      
+
       {/* תוכן עיקרי */}
       <div className="order-content">
         <div className="container">
@@ -527,7 +546,7 @@ export const NewOrder = () => {
                   </select>
                 </div>
               </div>
-              
+
               <div className="products-grid">
                 {filteredProducts.length > 0 ? (
                   filteredProducts.map(product => (
@@ -538,10 +557,10 @@ export const NewOrder = () => {
                       <div className="product-details">
                         <h3>{product.pname}</h3>
                         <p className="product-category">כלי עבודה</p> {/*{product.category} */}
-                         <p className="product-price">₪ 10</p>{/*product.price.toFixed(2) */}
+                        <p className="product-price">₪ 10</p>{/*product.price.toFixed(2) */}
                         <p className="product-stock">במלאי: {product.psum}</p>
                       </div>
-                      <button 
+                      <button
                         className="add-to-cart-btn"
                         onClick={() => addToCart(product)}
                       >
@@ -556,12 +575,12 @@ export const NewOrder = () => {
                 )}
               </div>
             </div>
-            
+
             {/* חלק ימני - סל הקניות */}
             <div className="cart-section" data-aos="fade-left">
               <div className="cart-container">
                 <h2>סל ההזמנה שלך</h2>
-                
+
                 {cart.length > 0 ? (
                   <>
                     <div className="cart-items">
@@ -575,14 +594,14 @@ export const NewOrder = () => {
                             <p className="item-price">₪10</p>
                           </div>
                           <div className="item-quantity">
-                            <button 
+                            <button
                               className="quantity-btn"
                               onClick={() => updateQuantity(item.prodId, item.quantity - 1)}
                             >
                               -
                             </button>
                             <span>{item.quantity}</span>
-                            <button 
+                            <button
                               className="quantity-btn"
                               onClick={() => updateQuantity(item.prodId, item.quantity + 1)}
                             >
@@ -592,7 +611,7 @@ export const NewOrder = () => {
                           <div className="item-total">
                             ₪{(10 * item.quantity)}
                           </div>
-                          <button 
+                          <button
                             className="remove-btn"
                             onClick={() => removeFromCart(item.prodId)}
                           >
@@ -601,7 +620,7 @@ export const NewOrder = () => {
                         </div>
                       ))}
                     </div>
-                    
+
                     <div className="cart-summary">
                       <div className="summary-row">
                         <span>סה"כ מוצרים:</span>
@@ -612,20 +631,36 @@ export const NewOrder = () => {
                         <span className="cart-total">₪100</span>
                       </div>
                     </div>
-                    
+
                     <div className="cart-actions">
-                      <button 
+                      <button
                         className="submit-order-btn pulse-animation"
                         onClick={submitOrder}
                       >
                         שלח הזמנה
-                        </button>
-                      <button 
+                      </button>
+                      <button
                         className="clear-cart-btn"
                         onClick={() => setCart([])}
                       >
                         נקה סל
                       </button>
+                      <FormControl sx={{ m: 1, minWidth: " 250px" }} onClick={(e) => setListEmps(true)}>
+                        <InputLabel id="employee-select-label" >בחר עובד לטיפול בהזמנה</InputLabel>
+                        <Select
+                          labelId="employee-select-label"
+                          id="employee-select"
+                          value={employee}
+                          label="בחר עובד לטיפול בהזמנה"
+                          onChange={handleEmployeeChange}
+                        >
+                          {employees?.map((emp) => (
+                            <MenuItem key={emp.ename} value={emp.empId}>
+                              {emp.ename}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </div>
                   </>
                 ) : (
@@ -635,12 +670,13 @@ export const NewOrder = () => {
                     <p className="empty-cart-subtext">הוסף מוצרים מהקטלוג להזמנה שלך</p>
                   </div>
                 )}
+
               </div>
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* מידע נוסף */}
       <div className="order-info-section">
         <div className="section-wave-top">
@@ -686,7 +722,7 @@ export const NewOrder = () => {
           </svg>
         </div>
       </div>
-      
+
       {/* הזמנות קודמות */}
       <div className="previous-orders-section">
         <div className="container">
@@ -694,7 +730,7 @@ export const NewOrder = () => {
           <p className="section-subtitle" data-aos="fade-up" data-aos-delay="100">
             לנוחיותך, תוכל לראות את ההזמנות האחרונות שביצעת ולהזמין שוב מוצרים שהזמנת בעבר
           </p>
-          
+
           <div className="previous-orders-actions" data-aos="fade-up" data-aos-delay="200">
             <button className="view-all-orders-btn" onClick={() => navigate('/orders')}>
               צפה בכל ההזמנות <i className="fas fa-arrow-left"></i>
@@ -702,7 +738,7 @@ export const NewOrder = () => {
           </div>
         </div>
       </div>
-      
+
       {/* פוטר */}
       <footer className="order-footer">
         <div className="container">
