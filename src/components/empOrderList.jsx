@@ -106,36 +106,7 @@ export const EmpOrderList = () => {
     dispatch(getOrderDetailsThunk(ordId))
   }
   //מעדכן לאילו הזמנות יש פירוט משתנה כל פעם שמתקבל שינוי
-  useEffect(() => {
-    console.log(details);
-    if (details[0]) {
-   console.log("details[0]");
-   console.log(details[0]);
-    var updated=[];
-    var c=hasDetails.length;
-   for (let i = 0; i < c; i++) {
-    updated.push(-1);    
-   }
-   details.map((d,ind)=>{
-    console.log("d[0]");
-    console.log(d[0]);
-    var orderId = d[0].orderId;
-   ordersToSend.map((e,index) => {
-      if (e.orderId === orderId) {
-        updated[index]=ind;
-      }
-     })
-    })
-    console.log(updated);
-    setHasDetails(updated)   
-    }
-    
-   
-    console.log("details");
-    console.log(details);
-   
-  }, [details])//,hasDetails
-
+  
  //אתחול 
   useEffect(() => {
     console.log(id);
@@ -143,25 +114,55 @@ export const EmpOrderList = () => {
    console.log(ordersToSend>0);
    
 }, [])
- useEffect(()=>{
+useEffect(() => {
+  console.log(details);
+  if (details && details.length > 0 && details[0]) {
+    console.log("details[0]");
+    console.log(details[0]);
+    var updated = [];
+    var c = hasDetails && hasDetails.length ? hasDetails.length : 0;
+    for (let i = 0; i < c; i++) {
+      updated.push(-1);    
+    }
+    details.map((d, ind) => {
+      console.log("d[0]");
+      console.log(d[0]);
+      var orderId = d[0] && d[0].orderId;
+      if (orderId && ordersToSend) {
+        ordersToSend.map((e, index) => {
+          if (e.orderId === orderId) {
+            updated[index] = ind;
+          }
+        });
+      }
+    });
+    console.log(updated);
+    setHasDetails(updated);   
+  }
+  
+  console.log("details");
+  console.log(details);
+}, [details]);
+
+useEffect(() => {
   var arr = [];
-  if(ordersToSend.length>0&&details.length===0){
-  ordersToSend.map(o => {
-    arr.push(-1)
-  })
-  console.log("arrrrrr------",arr);
-  setHasDetails(arr);
-}
- },[ordersToSend])
+  if (ordersToSend && ordersToSend.length > 0 && (!details || details.length === 0)) {
+    ordersToSend.map(o => {
+      arr.push(-1);
+    });
+    console.log("arrrrrr------", arr);
+    setHasDetails(arr);
+  }
+}, [ordersToSend]);
  const navigate = useNavigate();
 
 const sendOrder=(orderId)=>{
-dispatch(UpdateSendingThunk(orderId));
+dispatch(UpdateSendingThunk({orderid:orderId,empid:EID}));
  }
   return <div >
      <ThemeProvider theme={theme}>
-      {EID!=0&& <button onClick={()=>navigate("../")} >חזרה לדף הניהול</button>}
-      {ordersToSend.length>0&&
+      {/* {EID!=0&& <button onClick={()=>navigate("../")} >חזרה לדף הניהול</button>} */}
+      {ordersToSend &&ordersToSend.length>0&&
      <TableContainer component={Paper} sx={{ direction: "rtl" ,overflow:"hidden"}}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table"
       >
@@ -183,8 +184,8 @@ dispatch(UpdateSendingThunk(orderId));
               <TableCell align="right" sx={{width:"15%",fontFamily:"cursive"}}>
                <button style={{fontSize:"xx-large"}} onClick={()=>sendOrder(row.orderId)}>✅</button><br /><span style={{fontSize:"small"}}>אשר בעת שליחת המשלוח</span>  
               </TableCell>
-              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.empName}</TableCell>
-              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.empEmail}</TableCell>
+              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.nameToConnection}</TableCell>
+              <TableCell align="right" sx={{width:"15%",fontFamily:"cursive",fontSize:"large"}} >{row.emailToConnection}</TableCell>
               <TableCell align="right">
                 {hasDetails[index]!==-1 &&
                 <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper',fontFamily:"cursive",fontSize:"large" }}>
@@ -207,7 +208,7 @@ dispatch(UpdateSendingThunk(orderId));
         </TableBody>
       </Table>
     </TableContainer>}
-    {ordersToSend.length===0&&
+    {(!ordersToSend || ordersToSend.length === 0)&&
     <h1 style={{fontSize:"100px"}}>מצטערים 😔😔😔😔😔😔 לא נמצאו הזמנות שלא בוצעו עבור עובד זה </h1>
     }
     </ThemeProvider>
