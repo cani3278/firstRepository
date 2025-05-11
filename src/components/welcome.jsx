@@ -162,8 +162,8 @@ export const Welcome = () => {
               <div className="testimonial-author">
                 <div className="author-image"></div>
                 <div className="author-details">
-                  <h4>מיכל אברהם</h4>
-                  <p>מנהלת תפעול, "אברהם ובניו קבלנות"</p>
+                  <h4>מיכאל אברהם</h4>
+                  <p>מנהל תפעול, "אברהם ובניו קבלנות"</p>
                 </div>
               </div>
             </div>
@@ -267,7 +267,7 @@ export const Welcome = () => {
           <div className="footer-logo" data-aos="zoom-in">
             <img src={`${process.env.PUBLIC_URL}/basisLabait.jpg`} alt="בסיס לבית" />
           </div>
-          <p>© 2023 כל הזכויות שמורות לחברת בסיס לבית בע"מ</p>
+          <p>© 2025 כל הזכויות שמורות לחברת בסיס לבית בע"מ</p>
         </div>
       </div>
     </footer>

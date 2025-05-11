@@ -144,7 +144,7 @@ export const Navigation = () => {
     ];
 
     const employeeItems = [
-      { text: 'הזמנות לקוחות', icon: <ShoppingCartIcon />, path: '/empOrderList' },
+      { text: 'הזמנות לקוחות', icon: <ShoppingCartIcon />, path: '/listOrdersForEmployee' },
       { text: 'ניהול מלאי', icon: <InventoryIcon />, path: 'manage/manageProducts' },
       { text: 'תמיכת לקוחות', icon: <SupportAgentIcon />, path: '/support' },
     ];

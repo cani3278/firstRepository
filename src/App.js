@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Routing } from './components/routing';
 import { Navigation } from './components/navigation';
 import { useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/App.css';
+import { Routing } from './components/routing';
 
 export const App = () => {
   // בדיקה אם המשתמש מזוהה

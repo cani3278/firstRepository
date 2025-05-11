@@ -793,20 +793,22 @@ const OrderHeader = styled(CardContent)(({ theme }) => ({
   justifyContent: 'space-between',
 }));
 
-const OrderStatus = styled(Chip)(({ theme, status }) => {
+const OrderStatus = styled(Chip)(({ theme, sent }) => {
   let color = '#4caf50'; // ברירת מחדל - ירוק
   let backgroundColor = 'rgba(76, 175, 80, 0.1)';
 
-  if (status === 'pending') {
-    color = '#ff9800';
-    backgroundColor = 'rgba(255, 152, 0, 0.1)';
-  } else if (status === 'processing') {
+   if (sent === 0) {
     color = '#2196f3';
     backgroundColor = 'rgba(33, 150, 243, 0.1)';
-  } else if (status === 'cancelled') {
-    color = '#f44336';
-    backgroundColor = 'rgba(244, 67, 54, 0.1)';
-  }
+  } 
+  // if (status === 'cancelled') {
+  //   color = '#f44336';
+  //   backgroundColor = 'rgba(244, 67, 54, 0.1)';
+  // }
+  // if (sent === 'pending') {
+  //   color = '#ff9800';
+  //   backgroundColor = 'rgba(255, 152, 0, 0.1)';
+  // } 
 
   return {
     color: color,
