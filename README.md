@@ -4,18 +4,7 @@
 
 הפרויקט יעסוק באספקת חומרי בניה
 הפרויקט יגיש ללקוחות אפשרות להזמנת סחורה (יתכנו שירותים נוספים בהמשך....)
-במבנה הנתונים הנוכחי ישמר מידע ב4 טבלאות :
--טבלת לקוחות העמודות
-,CustId,CustName,CustAddress,CustEmail,CustPhone       
--טבלת הזמנות בכותרות העמודות
-OrderId,OrdersDetais,OrderDate,CustId,EmpId,   
--טבלת הזמנות פירוט העמודות:
-Id,OrderId,ProdId,Count,Cost
--טבלת מוצרים (מלאי) העמודות:
-Id,OrderId,ProdId,Count(in store),Cost
- -טבלת עובדים העמודות:
-EmpId,EName,EGmail,EPhone
- React-                                                                             עבור הלקוחות:
+React-                                                                             עבור הלקוחות:
 קומפוננטות התחברות -להתחבר כלקוח מוכר או logIn
 קומפוננטת רישום-להירשם למועדון הלקוחות logOn
 קומפוננטת הזמנה חדשה-ליצור הזמנה
