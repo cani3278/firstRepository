@@ -725,7 +725,7 @@
 //   );
 // };
 // export default OldOrders;
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { styled } from '@mui/material/styles';
 import {
@@ -740,7 +740,6 @@ import {
   Button,
   Divider,
   Chip,
-  Avatar,
   CircularProgress,
   Collapse,
   IconButton,
@@ -751,7 +750,8 @@ import {
   TableHead,
   TableRow,
   Tabs,
-  Tab
+  Tab,
+  Tooltip
 } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -761,7 +761,11 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { getOrdersThunk } from '../redux/slices/getOrdersThunk';
 import { useNavigate } from 'react-router-dom';
-
+import { useReactToPrint } from 'react-to-print';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import PrintIcon from '@mui/icons-material/Print';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 // סטיילים מותאמים אישית
 const PageHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -857,7 +861,16 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     backgroundColor: 'rgba(25, 118, 210, 0.05)',
   },
 }));
-
+const ExportButton = styled(Button)(({ theme }) => ({
+  borderRadius: '8px',
+  fontWeight: 'bold',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+  transition: 'all 0.2s',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+  }
+}));
 // קומפוננטה ראשית
 const OldOrders = () => {
 
@@ -866,9 +879,10 @@ const OldOrders = () => {
   const [expanded, setExpanded] = useState({});
   const [tabValue, setTabValue] = useState(0);
   const dispatch = useDispatch();
-  // מידע המשתמש מ-Redux
   const userId = useSelector(state => state.user?.CID);
   const navigate = useNavigate();
+  const printRef = useRef(null);
+
   useEffect(() => {
     // כאן תהיה קריאה לשרת להביא את ההזמנות של המשתמש
     const fetchOrders = async () => {
@@ -921,6 +935,152 @@ const OldOrders = () => {
     if (tabValue === 2) return orders.filter(order => !order.sent); // הזמנות פעילות
     return orders;
   };
+// Export to PDF function
+const exportToPDF = () => {
+  const doc = new jsPDF('p', 'mm', 'a4');
+  
+  // Use a standard font instead of trying to load Hebrew fonts
+  doc.setFont('helvetica', 'normal');
+  
+  // Add title in English
+  doc.setFontSize(20);
+  doc.text('My Orders', 105, 15, { align: 'center' });
+  
+  // Add date in English
+  doc.setFontSize(12);
+  doc.text(`Export Date: ${new Date().toLocaleDateString('en-US')}`, 105, 25, { align: 'center' });
+  
+  // Create table data with English headers
+  const tableColumn = ["Total", "Status", "Date", "Order #"];
+  const tableRows = [];
+  
+  const filteredOrders = filterOrders();
+  
+  filteredOrders.forEach(order => {
+    const orderData = [
+      "₪XXX.XX", // Placeholder for total amount
+      order.sent ? "Completed" : "In Progress",
+      new Date(order.orderDate).toLocaleDateString('en-US'),
+      order.orderId
+    ];
+    tableRows.push(orderData);
+  });
+  
+  // Add table to document - using LTR for English
+  autoTable(doc, {
+    head: [tableColumn],
+    body: tableRows,
+    startY: 35,
+    theme: 'grid',
+    styles: {
+      font: 'helvetica',
+      fontSize: 10,
+      cellPadding: 5,
+      textColor: [0, 0, 0],
+      lineColor: [0, 0, 0],
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: [25, 118, 210],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 11,
+    },
+    alternateRowStyles: {
+      fillColor: [240, 240, 240],
+    },
+    margin: { top: 35 },
+  });
+  
+  // Add footer in English
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+    doc.text(
+      `Page ${i} of ${pageCount}`,
+      105,
+      doc.internal.pageSize.height - 10,
+      { align: 'center' }
+    );
+  }
+  
+  // Save the PDF with English filename
+  doc.save(`Orders_${new Date().toLocaleDateString('en-US').replace(/\//g, '-')}.pdf`);
+};
+const handlePrint = useReactToPrint({
+  contentRef: printRef,
+  documentTitle: 'My Orders',
+  pageStyle: `
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+    @media print {
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        color: #333;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      th {
+        background-color: "teal" !important;
+        color: white !important;
+        padding: 10px;
+        text-align: left;
+        font-weight: bold;
+        border: 1px solid #ddd;
+      }
+      td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+      tr:nth-child(even) {
+      }
+      h1, h2 {
+      }
+      .print-header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .print-footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 12px;
+        color: #666;
+      }
+      .chip {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+    
+      .order-card {
+        page-break-inside: avoid;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .order-header {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+      }
+      .hide-on-print {
+        display: none !important;
+      }
+      button {
+        display: none !important;
+      }
+    }
+  `,
+});
 
   if (loading) {
     return (
@@ -938,10 +1098,45 @@ const OldOrders = () => {
       <PageHeader>
         <HistoryIcon />
         <Typography variant="h4" component="h1" fontWeight="bold">
-          ההזמנות שלי
+                          ההזמנות שלי
         </Typography>
+        {/* Export buttons */}
+        {orders?.length > 0 && (
+          <Box sx={{ display: 'flex', gap: 2, marginLeft: 'auto', padding:'0 10px' }}>
+            <Tooltip title="הדפסה">
+              <ExportButton
+                variant="outlined"
+                color="primary"
+                startIcon={<PrintIcon />}
+                onClick={handlePrint}
+              >
+                הדפסה
+              </ExportButton>
+            </Tooltip>
+            
+            <Tooltip title="ייצוא ל-PDF">
+              <ExportButton
+                variant="contained"
+                color="primary"
+                startIcon={<PictureAsPdfIcon />}
+                onClick={exportToPDF}
+              >
+                ייצוא ל-PDF
+              </ExportButton>
+            </Tooltip>
+          </Box>
+        )}
       </PageHeader>
-
+      <div ref={printRef}>
+      <Box sx={{ display: 'none', '@media print': { display: 'block' } }} className="print-header">
+  <Typography variant="h4" align="center" gutterBottom>
+    My Orders
+  </Typography>
+  <Typography variant="body2" align="center" color="textSecondary">
+    Export Date: {new Date().toLocaleDateString('en-US')}
+  </Typography>
+  <Divider sx={{ my: 2 }} />
+</Box>
       <Paper sx={{ mb: 4, borderRadius: '12px', overflow: 'hidden' }}>
         <Tabs
           value={tabValue}
@@ -977,8 +1172,8 @@ const OldOrders = () => {
         </Paper>
       ) : (
         filterOrders()?.map((order) => (
-          <OrderCard key={order.orderId}>
-            <OrderHeader>
+          <OrderCard key={order.orderId} className="order-card">
+            <OrderHeader >
               <Box>
                 <Typography variant="h6" fontWeight="bold">
                   הזמנה מס' {order.orderId}
@@ -992,6 +1187,7 @@ const OldOrders = () => {
                   label={getStatusText(order.sent)}
                   status={order.sent}
                   icon={getStatusIcon(order.sent)}
+                  className={`chip ${order.sent ? 'chip-completed' : 'chip-inprogress'}`}
                 />
               </Box>
             </OrderHeader>
@@ -1013,7 +1209,7 @@ const OldOrders = () => {
 
             <Divider />
 
-            <CardActions disableSpacing>
+            <CardActions disableSpacing className="hide-on-print">
               <Button
                 size="small"
                 startIcon={<ReceiptIcon />}
@@ -1204,6 +1400,13 @@ const OldOrders = () => {
           </Button>
         </Paper>
       )}
+      <Box sx={{ display: 'none', '@media print': { display: 'block' } }} className="print-footer">
+  <Divider sx={{ my: 2 }} />
+  <Typography variant="body2" align="center" color="textSecondary">
+    This document was printed on {new Date().toLocaleDateString('en-US')}
+  </Typography>
+</Box>
+      </div>
     </Container>
   );
 };
