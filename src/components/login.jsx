@@ -384,8 +384,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 export const Login = () => {
     console.log('Login component rendered');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -394,6 +392,7 @@ export const Login = () => {
     const EID = useSelector(state => state.user.EID);
     const failed = useSelector(state => state.user.failed);
     const [newcustomer, setNewcustomer] = useState(false);
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
     // אתחול ספריית האנימציות
     useEffect(() => {
@@ -431,26 +430,25 @@ export const Login = () => {
             navigate(`/newcustomer`);
             return;
         }
-        
-        // לוגים רק אם לא בוצע ניווט
-        console.log("failed: " + failed);
-        console.log("cid: " + CID);
-        console.log("eid: " + EID);
+       
     }, [failed, CID, EID, navigate]); // הוספנו navigate למערך התלויות
 
     const handleSubmit = (e) => {
+        if (isButtonDisabled) {
+            e.preventDefault();
+            return;
+          }
+          
+          setIsButtonDisabled(true);
+          
+          // אפשר לחיצה מחדש אחרי 2 שניות
+          setTimeout(() => {
+            setIsButtonDisabled(false);
+          }, 2000);
         e.preventDefault();
         setError('');
-        
-        // שימוש בפעולות Redux
-        dispatch(editPassword(details.password));
-        console.log("dispatch(editPassword(details.password))");
-        dispatch(editcustomername(details.customername));
-        console.log("dispatch(editcustomername(details.customername))");
         dispatch(logInThunk(details));
-        console.log("dispatch(logInThunk(details))");
-        console.log("EID: " + EID);
-        console.log("CID: " + CID);
+     
     };
 
     return (
