@@ -1,58 +1,3 @@
-// import { useEffect, useState } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { useNavigate } from "react-router-dom";
-// import "./login.css"
-// import { addCustomerThunk } from "../redux/slices/addCustomerThunk";
-
-
-
-// export const NewCustomer = () => {
-//     const navigate = useNavigate();
-//     const dispatch = useDispatch();
-//     const customername = useSelector(state => state.user.customername);
-//     const password = useSelector(state => state.user.password);
-//     const [phone, setPhone] = useState("");
-//     const [email, setEmail] = useState("");
-//     const [address, setAddress] = useState("");
-//     const CID = useSelector(state => state.user.CID);
-//     const EID = useSelector(state => state.user.EID);
-//     useEffect(() => {
-//         console.log(customername + "customername");
-//     }, [])
-
-//     useEffect(() => {
-//         if (CID !== -1) {
-//             navigate(`/Home`)
-//         }
-//     }, [CID])
-//     // useEffect(() => {
-//     //     if (CID !== -1)
-//     //         navigate(`Home`)
-//     //     if (EID === 10000) {
-//     //         navigate(`Manager`)
-//     //     }
-//     //     if (EID !== -1 && EID !== 10000)
-//     //         navigate(`service`)//employee    
-//     // }, [CID, EID])
-//     return <div className="newcustomer-container">
-//         <input className="newcustomerInput" type="text" value={customername} />
-//         <input className="newcustomerInput" type="text" value={password} />
-//         <input className="newcustomerInput" type="text" onChange={(e) => setPhone(e.target.value)} placeholder="your phone number" />
-//         <input className="newcustomerInput" type="text" onChange={(e) => setEmail(e.target.value)} placeholder="your Email" />
-//         <input className="newcustomerInput" type="text" onChange={(e) => setAddress(e.target.value)} placeholder="your address" />
-//         <button className="newcustomerButton" onClick={async () => {
-//             dispatch(addCustomerThunk({
-//                 custId: password,
-//                 custName: customername,
-//                 custAddress: address,
-//                 custEmail: email,
-//                 custPhone: phone
-//             }))
-//         }}
-//         >logOn</button>
-//     </div>
-// }
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/NewCustomer.css';
@@ -65,7 +10,8 @@ import {
   FaIdCard,
   FaPhone,
   FaMapMarkerAlt,
-  FaBuilding
+  FaEye,
+  FaEyeSlash
 } from 'react-icons/fa';
 import { addCustomerThunk } from "../redux/slices/addCustomerThunk";
 import { useDispatch, useSelector } from 'react-redux';
@@ -84,6 +30,8 @@ export const NewCustomer = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const customername = useSelector(state => state.user.customername);
   const password = useSelector(state => state.user.password);
@@ -103,7 +51,7 @@ export const NewCustomer = () => {
         ...formData,
         custId: password,
         custName: customername,
-        });
+      });
     }
   }, []);
 
@@ -113,6 +61,14 @@ export const NewCustomer = () => {
       ...formData,
       [name]: value
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   const validateForm = () => {
@@ -161,7 +117,6 @@ export const NewCustomer = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const formErrors = validateForm();
     setErrors(formErrors);
 
@@ -169,14 +124,24 @@ export const NewCustomer = () => {
       setIsSubmitting(true);
 
       try {
-        dispatch(addCustomerThunk(formData));
+        // יצירת אובייקט הנתונים לשליחה לשרת
+        const customerData = {
+          custId: formData.custId,
+          custName: formData.custName,
+          custEmail: formData.custEmail,
+          custPhone: formData.custPhone,
+          custAddress: formData.custAddress,
+          password: formData.password
+        };
+
+        dispatch(addCustomerThunk(customerData));
 
         // הצגת הודעת הצלחה
         setSubmitSuccess(true);
 
         // ניווט לדף ההתחברות לאחר 2 שניות
         setTimeout(() => {
-          navigate('/login');
+          navigate('/home');
         }, 2000);
       } catch (error) {
         setErrors({ submit: error.message || 'אירעה שגיאה בתהליך הרישום' });
@@ -214,23 +179,23 @@ export const NewCustomer = () => {
                 <form onSubmit={handleSubmit} className="register-form">
                   {errors.submit && <div className="error-message">{errors.submit}</div>}
 
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="custId">
-                        <FaIdCard className="input-icon" /> תעודת זהות
-                      </label>
-                      <input
-                        type="text"
-                        id="custId"
-                        name="custId"
-                        value={formData.custId}
-                        onChange={handleChange}
-                        placeholder="הזן תעודת זהות (9 ספרות)"
-                        className={errors.custId ? 'error' : ''}
-                      />
-                      {errors.custId && <div className="error-text">{errors.custId}</div>}
-                    </div>
+                  <div className="form-group full-width">
+                    <label htmlFor="custId">
+                      <FaIdCard className="input-icon" /> תעודת זהות (קוד משתמש)
+                    </label>
+                    <input
+                      type="text"
+                      id="custId"
+                      name="custId"
+                      value={formData.custId}
+                      onChange={handleChange}
+                      placeholder="הזן תעודת זהות (9 ספרות)"
+                      className={errors.custId ? 'error' : ''}
+                    />
+                    {errors.custId && <div className="error-text">{errors.custId}</div>}
+                  </div>
 
+                  <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="custName">
                         <FaUser className="input-icon" /> שם מלא
@@ -246,9 +211,7 @@ export const NewCustomer = () => {
                       />
                       {errors.custName && <div className="error-text">{errors.custName}</div>}
                     </div>
-                  </div>
 
-                  <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="custEmail">
                         <FaEnvelope className="input-icon" /> דואר אלקטרוני
@@ -264,7 +227,9 @@ export const NewCustomer = () => {
                       />
                       {errors.custEmail && <div className="error-text">{errors.custEmail}</div>}
                     </div>
+                  </div>
 
+                  <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="custPhone">
                         <FaPhone className="input-icon" /> טלפון
@@ -280,20 +245,20 @@ export const NewCustomer = () => {
                       />
                       {errors.custPhone && <div className="error-text">{errors.custPhone}</div>}
                     </div>
-                  </div>
 
-                  <div className="form-group full-width">
-                    <label htmlFor="custAddress">
-                      <FaMapMarkerAlt className="input-icon" /> כתובת
-                    </label>
-                    <input
-                      type="text"
-                      id="custAddress"
-                      name="custAddress"
-                      value={formData.custAddress}
-                      onChange={handleChange}
-                      placeholder="הזן כתובת מלאה"
-                    />
+                    <div className="form-group">
+                      <label htmlFor="custAddress">
+                        <FaMapMarkerAlt className="input-icon" /> כתובת
+                      </label>
+                      <input
+                        type="text"
+                        id="custAddress"
+                        name="custAddress"
+                        value={formData.custAddress}
+                        onChange={handleChange}
+                        placeholder="הזן כתובת מלאה"
+                      />
+                    </div>
                   </div>
 
                   <div className="form-row">
@@ -301,15 +266,24 @@ export const NewCustomer = () => {
                       <label htmlFor="password">
                         <FaLock className="input-icon" /> סיסמה
                       </label>
-                      <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="הזן סיסמה (לפחות 6 תווים)"
-                        className={errors.password ? 'error' : ''}
-                      />
+                      <div className="password-input-container">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          id="password"
+                          name="password"
+                          value={formData.password}
+                          onChange={handleChange}
+                          placeholder="הזן סיסמה (לפחות 6 תווים)"
+                          className={errors.password ? 'error' : ''}
+                        />
+                        <button 
+                          type="button" 
+                          className="password-toggle-btn"
+                          onClick={togglePasswordVisibility}
+                        >
+                          {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
                       {errors.password && <div className="error-text">{errors.password}</div>}
                     </div>
 
@@ -317,15 +291,24 @@ export const NewCustomer = () => {
                       <label htmlFor="confirmPassword">
                         <FaLock className="input-icon" /> אימות סיסמה
                       </label>
-                      <input
-                        type="password"
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        placeholder="הזן שוב את הסיסמה"
-                        className={errors.confirmPassword ? 'error' : ''}
-                      />
+                      <div className="password-input-container">
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          value={formData.confirmPassword}
+                          onChange={handleChange}
+                          placeholder="הזן שוב את הסיסמה"
+                          className={errors.confirmPassword ? 'error' : ''}
+                        />
+                        <button 
+                          type="button" 
+                          className="password-toggle-btn"
+                          onClick={toggleConfirmPasswordVisibility}
+                        >
+                          {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
                       {errors.confirmPassword && <div className="error-text">{errors.confirmPassword}</div>}
                     </div>
                   </div>
@@ -380,3 +363,4 @@ export const NewCustomer = () => {
     </div>
   );
 };
+

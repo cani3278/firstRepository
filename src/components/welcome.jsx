@@ -17,13 +17,13 @@ export const Welcome = () => {
     <div className="welcome-page">
       {/* Hero Section */}
       <div className="hero-section">
-        <div className="container">
+        <div className="container" style={{ position: "relative", zIndex: 2 }}>
           <div className="hero-content" data-aos="fade-up">
             <div className="logo-container">
               <img src={`${process.env.PUBLIC_URL}/basisLabait.jpg`} alt="בסיס לבית" className="hero-logo" />
             </div>
             <h1 data-aos="fade-up" data-aos-delay="200">פתרונות סיטונאיים מקצועיים לענף הבנייה</h1>
-            <p data-aos="fade-up" data-aos-delay="300">הפלטפורמה המובילה להזמנת חומרי בניה, כלי עבודה וציוד מקצועי עבור חנויות, קבלנים ואנשי מקצוע</p>
+            <p data-aos="fade-up" data-aos-delay="300"  style={{ color: "#333", textShadow: "0 0 5px rgba(255,255,255,0.7)" }}>הפלטפורמה המובילה להזמנת חומרי בניה, כלי עבודה וציוד מקצועי עבור חנויות, קבלנים ואנשי מקצוע</p>
             <div className="hero-buttons" data-aos="fade-up" data-aos-delay="400">
               <Link to="/login" className="btn btn-primary">התחברות למערכת</Link>
               <Link to="/newcustomer" className="btn btn-secondary">הרשמה כלקוח חדש</Link>

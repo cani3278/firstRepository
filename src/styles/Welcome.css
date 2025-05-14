@@ -143,11 +143,10 @@
     background-size: cover;
     background-position: center;
     color: white;
-    padding: 120px 0 80px;
+    padding: 50px 0 80px;
     text-align: center;
     position: relative;
   }
-  
   .hero-wave {
     position: absolute;
     bottom: -1px;
@@ -1201,4 +1200,37 @@
       flex: 0 0 100%; /* One item per row on small screens */
     }
   }
+  .features-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px; /* Space between items */
+  }
+  
+  .feature-card {
+    flex: 1 1 200px; /* This allows items to grow and shrink, with a base width of 200px */
+    max-width: 300px; /* Prevents cards from getting too wide */
+    margin-bottom: 20px;
+  }
+  .testimonials-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px; /* Space between testimonials */
+  }
+  
+  .testimonial-card {
+    flex: 1 1 300px; /* Base width of 300px, but can grow and shrink */
+    max-width: 400px; /* Prevents cards from getting too wide */
+    margin-bottom: 20px;
+  }
+/* Add this to your Welcome.css file */
+@media (min-width: 1200px) {
+  .hero-content p {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+}
   
