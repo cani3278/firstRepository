@@ -766,7 +766,9 @@ import { useReactToPrint } from 'react-to-print';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import PrintIcon from '@mui/icons-material/Print';
 import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import autoTable from 'jspdf-autotable';
+import { getAllOrderDetailsThunk } from '../redux/slices/getAllOrderDetailsThunk';
 // סטיילים מותאמים אישית
 const ProductImage = styled('img')({
   width: 60,
@@ -944,11 +946,13 @@ const OldOrders = () => {
   //         img.src = `${process.env.PUBLIC_URL}/pppp.jpg`;
   //       }
   //     }, 5000); // 5 שניות טיימאאוט
-      
+
   //     return () => clearTimeout(timeout);
   //   });
   // }, [details, hasDetails]);
-  
+  //פרטי כל ההזמנות מהשרת 
+  const allOrdersDetails = useSelector(state => state.Orders.allOrderDetail);
+  const [myOrdersDetails, setMyOrdersDetails] = useState([]);
   const handleExpandClick = (orderId) => {
     setExpanded({
       ...expanded,
@@ -984,10 +988,12 @@ const OldOrders = () => {
     return orders;
   };
   // Export to PDF function
+  // Modify the exportToPDF function to include order details
   const exportToPDF = () => {
+    dispatch(getAllOrderDetailsThunk());
     const doc = new jsPDF('p', 'mm', 'a4');
-
-    // Use a standard font instead of trying to load Hebrew fonts
+    doc.setFont('Arial Unicode MS')
+    // Use a standard font
     doc.setFont('helvetica', 'normal');
 
     // Add title in English
@@ -998,53 +1004,97 @@ const OldOrders = () => {
     doc.setFontSize(12);
     doc.text(`Export Date: ${new Date().toLocaleDateString('en-US')}`, 105, 25, { align: 'center' });
 
-    // Create table data with English headers
-    const tableColumn = ["Total", "Status", "Date", "Order #"];
-    const tableRows = [];
-
     const filteredOrders = filterOrders();
+    let yPos = 35;
 
-    filteredOrders.forEach(order => {
-      const orderData = [
-        "₪XXX.XX", // Placeholder for total amount
-        order.sent ? "Completed" : "In Progress",
-        new Date(order.orderDate).toLocaleDateString('en-US'),
-        order.orderId
-      ];
-      tableRows.push(orderData);
+    // For each order, create a section
+    filteredOrders.forEach((order, orderIndex) => {
+     setMyOrdersDetails(allOrdersDetails.filter(d => d.orderId === order.orderId));
+    // Add order header
+      yPos += 10;
+      doc.setFontSize(14);
+      doc.setTextColor(25, 118, 210); // Primary color
+      doc.text(`Order #${order.orderId}`, 15, yPos);
+
+      // Add order date and status
+      yPos += 8;
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Date: ${new Date(order.orderDate).toLocaleDateString('en-US')}`, 15, yPos);
+      doc.text(`Status: ${order.sent ? "Completed" : "In Progress"}`, 80, yPos);
+
+      // Check if we have details for this order
+      if (myOrdersDetails) {
+        // Add order items table
+        yPos += 10;
+
+        // Table headers
+        const tableColumn = ["Product", "Quantity", "Price"];
+        const tableRows = [];
+
+        // Add order items to table
+        allOrdersDetails.filter(i=>i.orderId===order.orderId).forEach(item => {
+          const itemData = [
+            item.prodName,
+            item.count.toString(),
+            "₪XX.XX" // Replace with actual price if available
+          ];
+          tableRows.push(itemData);
+        });
+
+        // Add table to document
+        autoTable(doc, {
+          head: [tableColumn],
+          body: tableRows,
+          startY: yPos,
+          theme: 'grid',
+          styles: {
+            font: 'helvetica',
+            fontSize: 9,
+            cellPadding: 4,
+          },
+          headStyles: {
+            fillColor: [25, 118, 210],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+          },
+          alternateRowStyles: {
+            fillColor: [240, 240, 240],
+          },
+          margin: { left: 15, right: 15 },
+        });
+
+        // Update yPos to after the table
+        yPos = doc.lastAutoTable.finalY + 10;
+      } else {
+        // If no details available, add a message
+        yPos += 8;
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text("No detailed information available for this order", 15, yPos);
+        yPos += 10;
+      }
+
+      // Add a divider between orders
+      if (orderIndex < filteredOrders.length - 1) {
+        doc.setDrawColor(200, 200, 200);
+        doc.line(15, yPos, 195, yPos);
+        yPos += 5;
+      }
+
+      // Check if we need a new page
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
     });
 
-    // Add table to document - using LTR for English
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 35,
-      theme: 'grid',
-      styles: {
-        font: 'helvetica',
-        fontSize: 10,
-        cellPadding: 5,
-        textColor: [0, 0, 0],
-        lineColor: [0, 0, 0],
-        lineWidth: 0.1,
-      },
-      headStyles: {
-        fillColor: [25, 118, 210],
-        textColor: [255, 255, 255],
-        fontStyle: 'bold',
-        fontSize: 11,
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240],
-      },
-      margin: { top: 35 },
-    });
-
-    // Add footer in English
+    // Add footer with page numbers
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
       doc.text(
         `Page ${i} of ${pageCount}`,
         105,
@@ -1053,9 +1103,10 @@ const OldOrders = () => {
       );
     }
 
-    // Save the PDF with English filename
+    // Save the PDF
     doc.save(`Orders_${new Date().toLocaleDateString('en-US').replace(/\//g, '-')}.pdf`);
   };
+
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: 'My Orders',
