@@ -452,9 +452,12 @@ export const NewOrder = () => {
   const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
   //employees
   const getEmps = () => {
-    dispatch(getEmployeesThunk());
+    if (employees.length === 0){
+        dispatch(getEmployeesThunk());
     console.log(employees);
     setListEmps(true);
+    }
+  
   }
   const handleEmployeeChange = (event) => {
     setListEmps(true);
