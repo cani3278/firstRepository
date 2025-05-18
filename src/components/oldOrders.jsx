@@ -760,6 +760,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { getOrdersThunk } from '../redux/slices/getOrdersThunk';
+import { getOrderDetailsThunk } from "../redux/slices/getOrderDetailsThunk";
 import { useNavigate } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
@@ -767,6 +768,16 @@ import PrintIcon from '@mui/icons-material/Print';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 // סטיילים מותאמים אישית
+const ProductImage = styled('img')({
+  width: 60,
+  height: 60,
+  objectFit: 'cover',
+  borderRadius: '8px',
+  border: '1px solid #e0e0e0',
+  backgroundColor: '#f5f5f5', // Light background for empty images
+  display: 'block', // Ensures consistent display
+});
+
 const PageHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -801,10 +812,10 @@ const OrderStatus = styled(Chip)(({ theme, sent }) => {
   let color = '#4caf50'; // ברירת מחדל - ירוק
   let backgroundColor = 'rgba(76, 175, 80, 0.1)';
 
-   if (sent === 0) {
+  if (sent === 0) {
     color = '#2196f3';
     backgroundColor = 'rgba(33, 150, 243, 0.1)';
-  } 
+  }
   // if (status === 'cancelled') {
   //   color = '#f44336';
   //   backgroundColor = 'rgba(244, 67, 54, 0.1)';
@@ -836,13 +847,7 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-const ProductImage = styled('img')({
-  width: 60,
-  height: 60,
-  objectFit: 'cover',
-  borderRadius: '8px',
-  border: '1px solid #e0e0e0',
-});
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   fontWeight: 'bold',
@@ -903,14 +908,57 @@ const OldOrders = () => {
 
     fetchOrders();
   }, [userId]);
+  //יבוא פרטי הזמנה
+  const details = useSelector(state => state.Orders.orderDetail);
+  const [hasDetails, setHasDetails] = useState([]);
+  // Initialize hasDetails array
+  useEffect(() => {
+    if (orders.length > 0 && details.length === 0) {
+      const arr = Array(orders.length).fill(-1);
+      setHasDetails(arr);
+    }
+  }, [orders]);
+  //   // Update details state when details change
+  useEffect(() => {
+    if (details[0]) {
+      const updated = Array(hasDetails.length).fill(-1);
 
+      details.forEach((d, ind) => {
+        const orderId = d[0].orderId;
+        orders.forEach((e, index) => {
+          if (e.orderId === orderId) {
+            updated[index] = ind;
+          }
+        });
+      });
+
+      setHasDetails(updated);
+    }
+  }, [details]);
+  // useEffect(() => {
+  //   // הגדר טיימאאוט לתמונות שלא נטענות
+  //   const imageElements = document.querySelectorAll('.product-image');
+  //   imageElements.forEach(img => {
+  //     const timeout = setTimeout(() => {
+  //       if (!img.complete || img.naturalHeight === 0) {
+  //         img.src = `${process.env.PUBLIC_URL}/pppp.jpg`;
+  //       }
+  //     }, 5000); // 5 שניות טיימאאוט
+      
+  //     return () => clearTimeout(timeout);
+  //   });
+  // }, [details, hasDetails]);
+  
   const handleExpandClick = (orderId) => {
     setExpanded({
       ...expanded,
       [orderId]: !expanded[orderId]
     });
+    fetchDetails(orderId);
   };
-
+  const fetchDetails = (ordId) => {
+    dispatch(getOrderDetailsThunk(ordId));
+  }
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -935,83 +983,83 @@ const OldOrders = () => {
     if (tabValue === 2) return orders.filter(order => !order.sent); // הזמנות פעילות
     return orders;
   };
-// Export to PDF function
-const exportToPDF = () => {
-  const doc = new jsPDF('p', 'mm', 'a4');
-  
-  // Use a standard font instead of trying to load Hebrew fonts
-  doc.setFont('helvetica', 'normal');
-  
-  // Add title in English
-  doc.setFontSize(20);
-  doc.text('My Orders', 105, 15, { align: 'center' });
-  
-  // Add date in English
-  doc.setFontSize(12);
-  doc.text(`Export Date: ${new Date().toLocaleDateString('en-US')}`, 105, 25, { align: 'center' });
-  
-  // Create table data with English headers
-  const tableColumn = ["Total", "Status", "Date", "Order #"];
-  const tableRows = [];
-  
-  const filteredOrders = filterOrders();
-  
-  filteredOrders.forEach(order => {
-    const orderData = [
-      "₪XXX.XX", // Placeholder for total amount
-      order.sent ? "Completed" : "In Progress",
-      new Date(order.orderDate).toLocaleDateString('en-US'),
-      order.orderId
-    ];
-    tableRows.push(orderData);
-  });
-  
-  // Add table to document - using LTR for English
-  autoTable(doc, {
-    head: [tableColumn],
-    body: tableRows,
-    startY: 35,
-    theme: 'grid',
-    styles: {
-      font: 'helvetica',
-      fontSize: 10,
-      cellPadding: 5,
-      textColor: [0, 0, 0],
-      lineColor: [0, 0, 0],
-      lineWidth: 0.1,
-    },
-    headStyles: {
-      fillColor: [25, 118, 210],
-      textColor: [255, 255, 255],
-      fontStyle: 'bold',
-      fontSize: 11,
-    },
-    alternateRowStyles: {
-      fillColor: [240, 240, 240],
-    },
-    margin: { top: 35 },
-  });
-  
-  // Add footer in English
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFontSize(10);
-    doc.text(
-      `Page ${i} of ${pageCount}`,
-      105,
-      doc.internal.pageSize.height - 10,
-      { align: 'center' }
-    );
-  }
-  
-  // Save the PDF with English filename
-  doc.save(`Orders_${new Date().toLocaleDateString('en-US').replace(/\//g, '-')}.pdf`);
-};
-const handlePrint = useReactToPrint({
-  contentRef: printRef,
-  documentTitle: 'My Orders',
-  pageStyle: `
+  // Export to PDF function
+  const exportToPDF = () => {
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    // Use a standard font instead of trying to load Hebrew fonts
+    doc.setFont('helvetica', 'normal');
+
+    // Add title in English
+    doc.setFontSize(20);
+    doc.text('My Orders', 105, 15, { align: 'center' });
+
+    // Add date in English
+    doc.setFontSize(12);
+    doc.text(`Export Date: ${new Date().toLocaleDateString('en-US')}`, 105, 25, { align: 'center' });
+
+    // Create table data with English headers
+    const tableColumn = ["Total", "Status", "Date", "Order #"];
+    const tableRows = [];
+
+    const filteredOrders = filterOrders();
+
+    filteredOrders.forEach(order => {
+      const orderData = [
+        "₪XXX.XX", // Placeholder for total amount
+        order.sent ? "Completed" : "In Progress",
+        new Date(order.orderDate).toLocaleDateString('en-US'),
+        order.orderId
+      ];
+      tableRows.push(orderData);
+    });
+
+    // Add table to document - using LTR for English
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 35,
+      theme: 'grid',
+      styles: {
+        font: 'helvetica',
+        fontSize: 10,
+        cellPadding: 5,
+        textColor: [0, 0, 0],
+        lineColor: [0, 0, 0],
+        lineWidth: 0.1,
+      },
+      headStyles: {
+        fillColor: [25, 118, 210],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 11,
+      },
+      alternateRowStyles: {
+        fillColor: [240, 240, 240],
+      },
+      margin: { top: 35 },
+    });
+
+    // Add footer in English
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      doc.text(
+        `Page ${i} of ${pageCount}`,
+        105,
+        doc.internal.pageSize.height - 10,
+        { align: 'center' }
+      );
+    }
+
+    // Save the PDF with English filename
+    doc.save(`Orders_${new Date().toLocaleDateString('en-US').replace(/\//g, '-')}.pdf`);
+  };
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: 'My Orders',
+    pageStyle: `
     @page {
       size: A4;
       margin: 15mm;
@@ -1080,7 +1128,7 @@ const handlePrint = useReactToPrint({
       }
     }
   `,
-});
+  });
 
   if (loading) {
     return (
@@ -1098,11 +1146,11 @@ const handlePrint = useReactToPrint({
       <PageHeader>
         <HistoryIcon />
         <Typography variant="h4" component="h1" fontWeight="bold">
-                          ההזמנות שלי
+          ההזמנות שלי
         </Typography>
         {/* Export buttons */}
         {orders?.length > 0 && (
-          <Box sx={{ display: 'flex', gap: 2, marginLeft: 'auto', padding:'0 10px' }}>
+          <Box sx={{ display: 'flex', gap: 2, marginLeft: 'auto', padding: '0 10px' }}>
             <Tooltip title="הדפסה">
               <ExportButton
                 variant="outlined"
@@ -1113,7 +1161,7 @@ const handlePrint = useReactToPrint({
                 הדפסה
               </ExportButton>
             </Tooltip>
-            
+
             <Tooltip title="ייצוא ל-PDF">
               <ExportButton
                 variant="contained"
@@ -1128,228 +1176,231 @@ const handlePrint = useReactToPrint({
         )}
       </PageHeader>
       <div ref={printRef}>
-      <Box sx={{ display: 'none', '@media print': { display: 'block' } }} className="print-header">
-  <Typography variant="h4" align="center" gutterBottom>
-    My Orders
-  </Typography>
-  <Typography variant="body2" align="center" color="textSecondary">
-    Export Date: {new Date().toLocaleDateString('en-US')}
-  </Typography>
-  <Divider sx={{ my: 2 }} />
-</Box>
-      <Paper sx={{ mb: 4, borderRadius: '12px', overflow: 'hidden' }}>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          variant="fullWidth"
-          textColor="primary"
-          indicatorColor="primary"
-          aria-label="סינון הזמנות"
-        >
-          <Tab icon={<ShoppingCartIcon />} label="כל ההזמנות" />
-          <Tab icon={<CheckCircleIcon />} label="הזמנות שהושלמו" />
-          <Tab icon={<LocalShippingIcon />} label="הזמנות פעילות" />
-        </Tabs>
-      </Paper>
-
-      {filterOrders()?.length === 0 ? (
-        <Paper sx={{ p: 4, textAlign: 'center', borderRadius: '12px' }}>
-          <Typography variant="h6" color="textSecondary">
-            לא נמצאו הזמנות
+        <Box sx={{ display: 'none', '@media print': { display: 'block' } }} className="print-header">
+          <Typography variant="h4" align="center" gutterBottom>
+            My Orders
           </Typography>
-          <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
-            לא נמצאו הזמנות התואמות את הסינון הנוכחי
+          <Typography variant="body2" align="center" color="textSecondary">
+            Export Date: {new Date().toLocaleDateString('en-US')}
           </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<ShoppingCartIcon />}
-            sx={{ mt: 3 }}
-            onClick={() => setTabValue(0)}
+          <Divider sx={{ my: 2 }} />
+        </Box>
+        <Paper sx={{ mb: 4, borderRadius: '12px', overflow: 'hidden' }}>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            variant="fullWidth"
+            textColor="primary"
+            indicatorColor="primary"
+            aria-label="סינון הזמנות"
           >
-            הצג את כל ההזמנות
-          </Button>
+            <Tab icon={<ShoppingCartIcon />} label="כל ההזמנות" />
+            <Tab icon={<CheckCircleIcon />} label="הזמנות שהושלמו" />
+            <Tab icon={<LocalShippingIcon />} label="הזמנות פעילות" />
+          </Tabs>
         </Paper>
-      ) : (
-        filterOrders()?.map((order) => (
-          <OrderCard key={order.orderId} className="order-card">
-            <OrderHeader >
-              <Box>
-                <Typography variant="h6" fontWeight="bold">
-                  הזמנה מס' {order.orderId}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  תאריך: {new Date(order.orderDate).toLocaleDateString('he-IL')}
-                </Typography>
-              </Box>
-              <Box display="flex" alignItems="center">
-                <OrderStatus
-                  label={getStatusText(order.sent)}
-                  status={order.sent}
-                  icon={getStatusIcon(order.sent)}
-                  className={`chip ${order.sent ? 'chip-completed' : 'chip-inprogress'}`}
-                />
-              </Box>
-            </OrderHeader>
 
-            <CardContent>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" color="textSecondary">
-                    מספר פריטים: {/*{order.items?.length} */}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
+        {filterOrders()?.length === 0 ? (
+          <Paper sx={{ p: 4, textAlign: 'center', borderRadius: '12px' }}>
+            <Typography variant="h6" color="textSecondary">
+              לא נמצאו הזמנות
+            </Typography>
+            <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
+              לא נמצאו הזמנות התואמות את הסינון הנוכחי
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<ShoppingCartIcon />}
+              sx={{ mt: 3 }}
+              onClick={() => setTabValue(0)}
+            >
+              הצג את כל ההזמנות
+            </Button>
+          </Paper>
+        ) : (
+          filterOrders()?.map((order, index) => (
+            <OrderCard key={order.orderId} className="order-card">
+              <OrderHeader >
+                <Box>
                   <Typography variant="h6" fontWeight="bold">
-                    סה"כ: ₪{/*{order.totalAmount.toFixed(2)} */}
+                    הזמנה מס' {order.orderId}
                   </Typography>
-                </Grid>
-              </Grid>
-            </CardContent>
+                  <Typography variant="body2" color="textSecondary">
+                    תאריך: {new Date(order.orderDate).toLocaleDateString('he-IL')}
+                  </Typography>
+                </Box>
+                <Box display="flex" alignItems="center">
+                  <OrderStatus
+                    label={getStatusText(order.sent)}
+                    status={order.sent}
+                    icon={getStatusIcon(order.sent)}
+                    className={`chip ${order.sent ? 'chip-completed' : 'chip-inprogress'}`}
+                  />
+                </Box>
+              </OrderHeader>
 
-            <Divider />
-
-            <CardActions disableSpacing className="hide-on-print">
-              <Button
-                size="small"
-                startIcon={<ReceiptIcon />}
-                sx={{ mr: 1 }}
-              >
-                צפה בחשבונית
-              </Button>
-              <Button
-                size="small"
-                disabled={order.sent}
-              >
-                מעקב הזמנה
-              </Button>
-              <ExpandMore
-                expand={expanded[order.orderId]}
-                onClick={() => handleExpandClick(order.orderId)}
-                aria-expanded={expanded[order.orderId]}
-                aria-label="הצג פרטים נוספים"
-              >
-                <ExpandMoreIcon />
-              </ExpandMore>
-            </CardActions>
-
-            <Collapse in={expanded[order.orderId]} timeout="auto" unmountOnExit>
               <CardContent>
-                <Typography variant="h6" fontWeight="bold" gutterBottom>
-                  פירוט מוצרים
-                </Typography>
-                <TableContainer component={Paper} elevation={0} variant="outlined">
-                  <Table aria-label="פירוט הזמנה">
-                    <TableHead>
-                      <TableRow>
-                        <StyledTableCell>מוצר</StyledTableCell>
-                        <StyledTableCell>תיאור</StyledTableCell>
-                        <StyledTableCell align="center">כמות</StyledTableCell>
-                        <StyledTableCell align="right">מחיר ליחידה</StyledTableCell>
-                        <StyledTableCell align="right">סה"כ</StyledTableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {order.items?.map((item) => (
-                        <StyledTableRow key={item.prodId}>
-                          <TableCell>
-                            <Box display="flex" alignItems="center">
-                              <ProductImage
-                                src={item.ppicture || '/images/placeholder.jpg'}
-                                alt={item.prodName}
-                                onError={(e) => {
-                                  e.target.src = '/images/placeholder.jpg';
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" color="textSecondary">
+                      מספר פריטים: {/*{order.items?.length} */}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
+                    <Typography variant="h6" fontWeight="bold">
+                      סה"כ: ₪{/*{order.totalAmount.toFixed(2)} */}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </CardContent>
+
+              <Divider />
+
+              <CardActions disableSpacing className="hide-on-print">
+                <Button
+                  size="small"
+                  startIcon={<ReceiptIcon />}
+                  sx={{ mr: 1 }}
+                >
+                  צפה בחשבונית
+                </Button>
+                <Button
+                  size="small"
+                  disabled={order.sent}
+                >
+                  מעקב הזמנה
+                </Button>
+                <ExpandMore
+                  expand={expanded[order.orderId]}
+                  onClick={() => handleExpandClick(order.orderId)}
+                  aria-expanded={expanded[order.orderId]}
+                  aria-label="הצג פרטים נוספים"
+                >
+                  <ExpandMoreIcon />
+                </ExpandMore>
+              </CardActions>
+
+              <Collapse in={expanded[order.orderId]} timeout="auto" unmountOnExit>
+                <CardContent>
+                  <Typography variant="h6" fontWeight="bold" gutterBottom>
+                    פירוט מוצרים
+                  </Typography>
+                  <TableContainer component={Paper} elevation={0} variant="outlined">
+                    <Table aria-label="פירוט הזמנה">
+                      <TableHead>
+                        <TableRow>
+                          <StyledTableCell>מוצר</StyledTableCell>
+                          <StyledTableCell>תיאור</StyledTableCell>
+                          <StyledTableCell align="center">כמות</StyledTableCell>
+                          <StyledTableCell align="right">מחיר ליחידה</StyledTableCell>
+                          <StyledTableCell align="right">סה"כ</StyledTableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {details[hasDetails[index]]?.map((item, i) => (
+                          <StyledTableRow key={item.prodId}>
+                            <TableCell>
+                              <Box display="flex" alignItems="center">
+                                <ProductImage
+                                  src={item.prodPic ? `https://localhost:7064/img/${item.prodPic}` : `${process.env.PUBLIC_URL}/${item.prodPic}.jpg`}
+                                  alt={item.prodName}
+                                  onError={(e) => {
+                                    console.log(`Failed to load image: ${e.target.src}`);
+                                    e.target.src = `${process.env.PUBLIC_URL}/pppp.jpg`;
+                                    e.target.onerror = null; // מונע לולאה אינסופית אם גם תמונת הגיבוי נכשלת
+                                  }}
+                                />
+
+                              </Box>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="subtitle2" fontWeight="bold">
+                                {item.prodName}
+                              </Typography>
+                            </TableCell>
+                            <TableCell align="center">
+                              <Chip
+                                label={item.count}
+                                size="small"
+                                sx={{
+                                  fontWeight: 'bold',
+                                  backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                                  color: '#1976d2',
+                                  border: '1px solid #1976d2'
                                 }}
                               />
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="subtitle2" fontWeight="bold">
-                              {item.prodName}
+                            </TableCell>
+                            <TableCell align="right">
+                              {/* ₪{item.price.toFixed(2)} */}
+                            </TableCell>
+                            <TableCell align="right">
+                              <Typography fontWeight="bold">
+                                {/* ₪{(item.price * item.quantity).toFixed(2)} */}
+                              </Typography>
+                            </TableCell>
+                          </StyledTableRow>
+                        ))}
+                        <StyledTableRow>
+                          <TableCell colSpan={3} />
+                          <StyledTableCell align="right">
+                            <Typography fontWeight="bold">סה"כ:</Typography>
+                          </StyledTableCell>
+                          <StyledTableCell align="right">
+                            <Typography fontWeight="bold" color="primary">
+                              {/* ₪{order.totalAmount.toFixed(2)} */}
                             </Typography>
-                          </TableCell>
-                          <TableCell align="center">
-                            <Chip
-                              label={item.sum}
-                              size="small"
-                              sx={{
-                                fontWeight: 'bold',
-                                backgroundColor: 'rgba(25, 118, 210, 0.1)',
-                                color: '#1976d2',
-                                border: '1px solid #1976d2'
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            {/* ₪{item.price.toFixed(2)} */}
-                          </TableCell>
-                          <TableCell align="right">
-                            <Typography fontWeight="bold">
-                              {/* ₪{(item.price * item.quantity).toFixed(2)} */}
-                            </Typography>
-                          </TableCell>
+                          </StyledTableCell>
                         </StyledTableRow>
-                      ))}
-                      <StyledTableRow>
-                        <TableCell colSpan={3} />
-                        <StyledTableCell align="right">
-                          <Typography fontWeight="bold">סה"כ:</Typography>
-                        </StyledTableCell>
-                        <StyledTableCell align="right">
-                          <Typography fontWeight="bold" color="primary">
-                            {/* ₪{order.totalAmount.toFixed(2)} */}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+                  <Box mt={3}>
+                    <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                      פרטי משלוח
+                    </Typography>
+                    <Paper variant="outlined" sx={{ p: 2, backgroundColor: 'rgba(0, 0, 0, 0.02)' }}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2" color="textSecondary">
+                            <strong>כתובת למשלוח:</strong>
                           </Typography>
-                        </StyledTableCell>
-                      </StyledTableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-
-                <Box mt={3}>
-                  <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                    פרטי משלוח
-                  </Typography>
-                  <Paper variant="outlined" sx={{ p: 2, backgroundColor: 'rgba(0, 0, 0, 0.02)' }}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={6}>
-                        <Typography variant="body2" color="textSecondary">
-                          <strong>כתובת למשלוח:</strong>
-                        </Typography>
-                        <Typography variant="body2">
-                          רחוב הרצל 123, תל אביב
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <Typography variant="body2" color="textSecondary">
-                          <strong>אמצעי תשלום:</strong>
-                        </Typography>
-                        <Typography variant="body2">
-                          כרטיס אשראי (מסתיים ב-1234)
-                        </Typography>
-                      </Grid>
-                      {order.sent === 0 && (
-                        <Grid item xs={12}>
-                          <Box mt={1} p={1.5} bgcolor="rgba(33, 150, 243, 0.1)" borderRadius={1}>
-                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                              <LocalShippingIcon sx={{ mr: 1, color: '#2196f3' }} />
-                              <span>ההזמנה שלך נמצאת בדרך ותגיע בתאריך {new Date(new Date(order.orderDate).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('he-IL')}</span>
-                            </Typography>
-                          </Box>
+                          <Typography variant="body2">
+                            רחוב הרצל 123, תל אביב
+                          </Typography>
                         </Grid>
-                      )}
-                    </Grid>
-                  </Paper>
-                </Box>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2" color="textSecondary">
+                            <strong>אמצעי תשלום:</strong>
+                          </Typography>
+                          <Typography variant="body2">
+                            כרטיס אשראי (מסתיים ב-1234)
+                          </Typography>
+                        </Grid>
+                        {order.sent === 0 && (
+                          <Grid item xs={12}>
+                            <Box mt={1} p={1.5} bgcolor="rgba(33, 150, 243, 0.1)" borderRadius={1}>
+                              <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                                <LocalShippingIcon sx={{ mr: 1, color: '#2196f3' }} />
+                                <span>ההזמנה שלך נמצאת בדרך ותגיע בתאריך {new Date(new Date(order.orderDate).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('he-IL')}</span>
+                              </Typography>
+                            </Box>
+                          </Grid>
+                        )}
+                      </Grid>
+                    </Paper>
+                  </Box>
 
-                <Box mt={3} display="flex" justifyContent="flex-end">
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    startIcon={<ReceiptIcon />}
-                  >
-                    הורד חשבונית
-                  </Button>
-                  {/* {order.status === 'pending' && (
+                  <Box mt={3} display="flex" justifyContent="flex-end">
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      startIcon={<ReceiptIcon />}
+                    >
+                      הורד חשבונית
+                    </Button>
+                    {/* {order.status === 'pending' && (
                     <Button
                       variant="outlined"
                       color="error"
@@ -1358,54 +1409,54 @@ const handlePrint = useReactToPrint({
                       בטל הזמנה
                     </Button>
                   )} */}
-                </Box>
-              </CardContent>
-            </Collapse>
-          </OrderCard>
-        ))
-      )}
+                  </Box>
+                </CardContent>
+              </Collapse>
+            </OrderCard>
+          ))
+        )}
 
-      {orders?.length > 0 && (
-        <Box mt={4} textAlign="center">
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<ShoppingCartIcon />}
-            onClick={() => navigate('/newOrder')}
-          >
-            הזמנה חדשה
-          </Button>
-        </Box>
-      )}
-
-      {orders?.length === 0 && tabValue === 0 && (
-        <Paper sx={{ p: 6, textAlign: 'center', borderRadius: '12px' }}>
-          <Box mb={3}>
-            <ShoppingCartIcon sx={{ fontSize: 60, color: '#9e9e9e' }} />
+        {orders?.length > 0 && (
+          <Box mt={4} textAlign="center">
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<ShoppingCartIcon />}
+              onClick={() => navigate('/newOrder')}
+            >
+              הזמנה חדשה
+            </Button>
           </Box>
-          <Typography variant="h5" gutterBottom>
-            אין לך הזמנות קודמות
+        )}
+
+        {orders?.length === 0 && tabValue === 0 && (
+          <Paper sx={{ p: 6, textAlign: 'center', borderRadius: '12px' }}>
+            <Box mb={3}>
+              <ShoppingCartIcon sx={{ fontSize: 60, color: '#9e9e9e' }} />
+            </Box>
+            <Typography variant="h5" gutterBottom>
+              אין לך הזמנות קודמות
+            </Typography>
+            <Typography variant="body1" color="textSecondary" paragraph>
+              נראה שעדיין לא ביצעת הזמנות במערכת שלנו.
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              startIcon={<ShoppingCartIcon />}
+              onClick={() => window.location.href = '/newOrder'}
+            >
+              בצע הזמנה ראשונה
+            </Button>
+          </Paper>
+        )}
+        <Box sx={{ display: 'none', '@media print': { display: 'block' } }} className="print-footer">
+          <Divider sx={{ my: 2 }} />
+          <Typography variant="body2" align="center" color="textSecondary">
+            This document was printed on {new Date().toLocaleDateString('en-US')}
           </Typography>
-          <Typography variant="body1" color="textSecondary" paragraph>
-            נראה שעדיין לא ביצעת הזמנות במערכת שלנו.
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            startIcon={<ShoppingCartIcon />}
-            onClick={() => window.location.href = '/newOrder'}
-          >
-            בצע הזמנה ראשונה
-          </Button>
-        </Paper>
-      )}
-      <Box sx={{ display: 'none', '@media print': { display: 'block' } }} className="print-footer">
-  <Divider sx={{ my: 2 }} />
-  <Typography variant="body2" align="center" color="textSecondary">
-    This document was printed on {new Date().toLocaleDateString('en-US')}
-  </Typography>
-</Box>
+        </Box>
       </div>
     </Container>
   );
