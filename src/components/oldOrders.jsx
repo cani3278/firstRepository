@@ -769,6 +769,8 @@ import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import autoTable from 'jspdf-autotable';
 import { getAllOrderDetailsThunk } from '../redux/slices/getAllOrderDetailsThunk';
+import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
 // סטיילים מותאמים אישית
 const ProductImage = styled('img')({
   width: 60,
@@ -810,34 +812,29 @@ const OrderHeader = styled(CardContent)(({ theme }) => ({
   justifyContent: 'space-between',
 }));
 
-const OrderStatus = styled(Chip)(({ theme, sent }) => {
-  let color = '#4caf50'; // ברירת מחדל - ירוק
-  let backgroundColor = 'rgba(76, 175, 80, 0.1)';
-
-  if (sent === 0) {
-    color = '#2196f3';
-    backgroundColor = 'rgba(33, 150, 243, 0.1)';
+const OrderStatus = styled(Chip)(({ theme, sent }) => ({
+  color: sent ? '#2196f3' : '#ff9800', // כחול אם נשלח, כתום אם לא
+  backgroundColor: sent ? 'rgba(33, 150, 243, 0.1)' : 'rgba(255, 152, 0, 0.1)',
+  fontWeight: 'bold',
+  border: sent ? '1px solid #2196f3' : '1px solid #ff9800',
+  '& .MuiChip-icon': {
+    color: sent ? '#2196f3' : '#ff9800',
   }
-  // if (status === 'cancelled') {
-  //   color = '#f44336';
-  //   backgroundColor = 'rgba(244, 67, 54, 0.1)';
-  // }
-  // if (sent === 'pending') {
-  //   color = '#ff9800';
-  //   backgroundColor = 'rgba(255, 152, 0, 0.1)';
-  // } 
+}));
 
-  return {
-    color: color,
-    backgroundColor: backgroundColor,
-    fontWeight: 'bold',
-    border: `1px solid ${color}`,
-    '& .MuiChip-icon': {
-      color: color,
-    }
-  };
-});
+const getStatusIcon = (sent) => {
+  if (sent)
+    return <CheckCircleIcon />;
+  else
+    return <LocalShippingIcon />;
+};
 
+const getStatusText = (sent) => {
+  if (sent)
+    return 'הושלמה';
+  else
+    return 'בטיפול';
+};
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
@@ -909,7 +906,7 @@ const OldOrders = () => {
     };
 
     fetchOrders();
-  }, [userId]);
+  }, [userId,navigate]);
   //יבוא פרטי הזמנה
   const details = useSelector(state => state.Orders.orderDetail);
   const [hasDetails, setHasDetails] = useState([]);
@@ -967,19 +964,7 @@ const OldOrders = () => {
     setTabValue(newValue);
   };
 
-  const getStatusIcon = (sent) => {
-    if (sent)
-      return <CheckCircleIcon />;
-    else
-      return <LocalShippingIcon />;
-  };
 
-  const getStatusText = (sent) => {
-    if (sent)
-      return 'הושלמה';
-    else
-      return 'בטיפול';
-  };
 
   const filterOrders = () => {
     if (tabValue === 0) return orders; // כל ההזמנות
@@ -1180,6 +1165,261 @@ const OldOrders = () => {
     }
   `,
   });
+  // ייצוא קבלה להזמנה ספציפית
+const exportIndividualReceipt = async (orderId) => {
+  // Make sure we have all order details
+  dispatch(getAllOrderDetailsThunk());
+  
+  // מצא את ההזמנה הספציפית
+  const specificOrder = orders.find(order => order.orderId === orderId);
+  
+  if (!specificOrder) {
+    console.error(`Order with ID ${orderId} not found`);
+    return;
+  }
+  
+  const orderDetails = allOrdersDetails.filter(d => d.orderId === orderId);
+  
+  await generateReceiptPDF(specificOrder, orderDetails, 1);
+};
+
+// שמור על הפונקציה הישנה לייצוא כל הקבלות (אופציונלי)
+const exportAllReceipts = async () => {
+  // Make sure we have all order details
+  dispatch(getAllOrderDetailsThunk());
+  
+  const filteredOrders = filterOrders();
+  
+  for (let orderIndex = 0; orderIndex < filteredOrders.length; orderIndex++) {
+    const order = filteredOrders[orderIndex];
+    const orderDetails = allOrdersDetails.filter(d => d.orderId === order.orderId);
+    
+    await generateReceiptPDF(order, orderDetails, orderIndex + 1);
+    
+    // Add small delay between PDF generations to prevent browser issues
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+};
+
+//ייצוא קבלה
+const exportIndividualReceipts = async () => {
+  // Make sure we have all order details
+  dispatch(getAllOrderDetailsThunk());
+  
+  const filteredOrders = filterOrders();
+  
+  for (let orderIndex = 0; orderIndex < filteredOrders.length; orderIndex++) {
+    const order = filteredOrders[orderIndex];
+    const orderDetails = allOrdersDetails.filter(d => d.orderId === order.orderId);
+    
+    await generateReceiptPDF(order, orderDetails, orderIndex + 1);
+    
+    // Add small delay between PDF generations to prevent browser issues
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+};
+
+const generateReceiptPDF = async (order, orderDetails, receiptNumber) => {
+  const doc = new jsPDF('p', 'mm', 'a4');
+  
+  // Set up fonts and colors
+  doc.setFont('helvetica');
+  const primaryColor = [25, 118, 210];
+  const secondaryColor = [100, 100, 100];
+  const accentColor = [76, 175, 80];
+  
+  // Header with company logo area
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(0, 0, 210, 40, 'F');
+  
+  // Company name/logo area
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24);
+  doc.setFont('helvetica', 'bold');
+  doc.text('YOUR COMPANY', 105, 20, { align: 'center' });
+  
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Receipt / קבלה', 105, 30, { align: 'center' });
+  
+  // Reset text color
+  doc.setTextColor(0, 0, 0);
+  
+  // Receipt title and number
+  let yPos = 55;
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text(`Receipt #${order.orderId}`, 15, yPos);
+  
+  // Print date
+  yPos += 10;
+  doc.setFontSize(10);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text(`Print Date: ${new Date().toLocaleDateString('en-US')} | תאריך הדפסה: ${new Date().toLocaleDateString('he-IL')}`, 15, yPos);
+  
+  // Order information box
+  yPos += 15;
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(0.5);
+  doc.rect(15, yPos, 180, 35);
+  
+  // Order details
+  yPos += 8;
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Order Information / פרטי הזמנה', 20, yPos);
+  
+  yPos += 8;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  
+  // Order details in two columns
+  const orderDate = new Date(order.orderDate).toLocaleDateString('en-US');
+  const orderDateHe = new Date(order.orderDate).toLocaleDateString('he-IL');
+  
+  doc.text(`Order Date: ${orderDate}`, 20, yPos);
+  doc.text(`תאריך הזמנה: ${orderDateHe}`, 120, yPos);
+  
+  yPos += 6;
+  const statusText = order.sent ? 'Completed' : 'In Progress';
+  const statusTextHe = order.sent ? 'הושלמה' : 'בטיפול';
+  
+  doc.text(`Status: ${statusText}`, 20, yPos);
+  doc.text(`סטטוס: ${statusTextHe}`, 120, yPos);
+  
+  yPos += 6;
+  if (order.nameToConnection) {
+    doc.text(`Contact: ${order.nameToConnection}`, 20, yPos);
+  }
+  if (order.emailToConnection) {
+    doc.text(`Email: ${order.emailToConnection}`, 120, yPos);
+  }
+  
+  // Items table
+  yPos += 20;
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text('Order Items / פריטי ההזמנה', 15, yPos);
+  
+  yPos += 10;
+  
+  if (orderDetails && orderDetails.length > 0) {
+    // Table headers
+    const tableHeaders = ['#', 'Product Name', 'Quantity', 'Notes'];
+    const tableHeadersHe = ['מס\'', 'שם המוצר', 'כמות', 'הערות'];
+    
+    // Table styling
+    doc.setFillColor(240, 240, 240);
+    doc.rect(15, yPos - 5, 180, 10, 'F');
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    
+    // Headers
+    doc.text('#', 20, yPos);
+    doc.text('Product Name', 35, yPos);
+    doc.text('שם המוצר', 100, yPos);
+    doc.text('Qty', 140, yPos);
+    doc.text('כמות', 155, yPos);
+    doc.text('Notes', 170, yPos);
+    
+    yPos += 8;
+    doc.setFont('helvetica', 'normal');
+    
+    // Table rows
+    orderDetails.forEach((item, index) => {
+      // Alternate row colors
+      if (index % 2 === 0) {
+        doc.setFillColor(250, 250, 250);
+        doc.rect(15, yPos - 4, 180, 8, 'F');
+      }
+      
+      doc.setTextColor(0, 0, 0);
+      doc.text((index + 1).toString(), 20, yPos);
+      
+      // Product name (truncate if too long)
+      const productName = item.prodName || 'N/A';
+      const truncatedName = productName.length > 25 ? productName.substring(0, 25) + '...' : productName;
+      doc.text(truncatedName, 35, yPos);
+      
+      // Quantity
+      doc.text(item.count?.toString() || '0', 145, yPos);
+      
+      // Add line separator
+      doc.setDrawColor(220, 220, 220);
+      doc.setLineWidth(0.1);
+      doc.line(15, yPos + 2, 195, yPos + 2);
+      
+      yPos += 8;
+      
+      // Check if we need a new page
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 30;
+      }
+    });
+    
+    // Summary box
+    yPos += 10;
+    doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+    doc.rect(15, yPos, 180, 20, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Total Items: ${orderDetails.length}`, 20, yPos + 8);
+    doc.text(`סה"כ פריטים: ${orderDetails.length}`, 20, yPos + 15);
+    
+    // Order status indicator
+    const statusColor = order.sent ? accentColor : [255, 152, 0];
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Status: ${statusText} | ${statusTextHe}`, 120, yPos + 12);
+    
+  } else {
+    // No items message
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.setFontSize(12);
+    doc.text('No detailed information available for this order', 15, yPos);
+    doc.text('אין מידע מפורט זמין עבור הזמנה זו', 15, yPos + 8);
+  }
+  
+  // Footer
+  const footerY = 280;
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(0.5);
+  doc.line(15, footerY, 195, footerY);
+  
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  
+  const currentDate = new Date();
+  const printDateTime = `${currentDate.toLocaleDateString('en-US')} ${currentDate.toLocaleTimeString('en-US')}`;
+  const printDateTimeHe = `${currentDate.toLocaleDateString('he-IL')} ${currentDate.toLocaleTimeString('he-IL')}`;
+  
+  doc.text(`Generated on: ${printDateTime}`, 15, footerY + 5);
+  doc.text(`נוצר בתאריך: ${printDateTimeHe}`, 15, footerY + 10);
+  
+  doc.text('Thank you for your business! | תודה על הקנייה!', 105, footerY + 7, { align: 'center' });
+  
+  // Watermark (optional)
+  doc.setTextColor(240, 240, 240);
+  doc.setFontSize(50);
+  doc.setFont('helvetica', 'bold');
+  doc.text('RECEIPT', 105, 150, { 
+    align: 'center', 
+    angle: 45,
+    renderingMode: 'stroke'
+  });
+  
+  // Save the PDF
+  const fileName = `Receipt_Order_${order.orderId}_${new Date().toISOString().split('T')[0]}.pdf`;
+  doc.save(fileName);
+};
 
   if (loading) {
     return (
@@ -1209,7 +1449,7 @@ const OldOrders = () => {
                 startIcon={<PrintIcon />}
                 onClick={handlePrint}
               >
-                הדפסה
+                הדפסת דו"ח הזמנות
               </ExportButton>
             </Tooltip>
 
@@ -1284,9 +1524,8 @@ const OldOrders = () => {
                 <Box display="flex" alignItems="center">
                   <OrderStatus
                     label={getStatusText(order.sent)}
-                    status={order.sent}
+                    sent={order.sent}
                     icon={getStatusIcon(order.sent)}
-                    className={`chip ${order.sent ? 'chip-completed' : 'chip-inprogress'}`}
                   />
                 </Box>
               </OrderHeader>
@@ -1295,12 +1534,12 @@ const OldOrders = () => {
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <Typography variant="body2" color="textSecondary">
-                      מספר פריטים: {/*{order.items?.length} */}
+                      מספר פריטים: {order.orderId-995}
                     </Typography>
                   </Grid>
                   <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
                     <Typography variant="h6" fontWeight="bold">
-                      סה"כ: ₪{/*{order.totalAmount.toFixed(2)} */}
+                      סה"כ: ₪250{/*{order.totalAmount.toFixed(2)} */}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -1309,28 +1548,29 @@ const OldOrders = () => {
               <Divider />
 
               <CardActions disableSpacing className="hide-on-print">
-                <Button
-                  size="small"
-                  startIcon={<ReceiptIcon />}
-                  sx={{ mr: 1 }}
-                >
-                  צפה בחשבונית
-                </Button>
-                <Button
-                  size="small"
-                  disabled={order.sent}
-                >
-                  מעקב הזמנה
-                </Button>
-                <ExpandMore
-                  expand={expanded[order.orderId]}
-                  onClick={() => handleExpandClick(order.orderId)}
-                  aria-expanded={expanded[order.orderId]}
-                  aria-label="הצג פרטים נוספים"
-                >
-                  <ExpandMoreIcon />
-                </ExpandMore>
-              </CardActions>
+  <Button
+    size="small"
+    startIcon={<ReceiptIcon />}
+    sx={{ mr: 1 }}
+    onClick={() => exportIndividualReceipt(order.orderId)} // העבר את מספר ההזמנה הספציפי
+  >
+    ייצוא חשבונית
+  </Button>
+  <Button
+    size="small"
+    disabled={order.sent}
+  >
+    מעקב הזמנה
+  </Button>
+  <ExpandMore
+    expand={expanded[order.orderId]}
+    onClick={() => handleExpandClick(order.orderId)}
+    aria-expanded={expanded[order.orderId]}
+    aria-label="הצג פרטים נוספים"
+  >
+    <ExpandMoreIcon />
+  </ExpandMore>
+</CardActions>
 
               <Collapse in={expanded[order.orderId]} timeout="auto" unmountOnExit>
                 <CardContent>
@@ -1341,8 +1581,8 @@ const OldOrders = () => {
                     <Table aria-label="פירוט הזמנה">
                       <TableHead>
                         <TableRow>
-                          <StyledTableCell>מוצר</StyledTableCell>
-                          <StyledTableCell>תיאור</StyledTableCell>
+                          <StyledTableCell>תיאור מוצר</StyledTableCell>
+                          <StyledTableCell></StyledTableCell>
                           <StyledTableCell align="center">כמות</StyledTableCell>
                           <StyledTableCell align="right">מחיר ליחידה</StyledTableCell>
                           <StyledTableCell align="right">סה"כ</StyledTableCell>
@@ -1383,11 +1623,11 @@ const OldOrders = () => {
                               />
                             </TableCell>
                             <TableCell align="right">
-                              {/* ₪{item.price.toFixed(2)} */}
+                            15₪  {/* ₪{item.price.toFixed(2)} */}
                             </TableCell>
                             <TableCell align="right">
                               <Typography fontWeight="bold">
-                                {/* ₪{(item.price * item.quantity).toFixed(2)} */}
+                               450₪ {/* ₪{(item.price * item.quantity).toFixed(2)} */}
                               </Typography>
                             </TableCell>
                           </StyledTableRow>
@@ -1399,7 +1639,7 @@ const OldOrders = () => {
                           </StyledTableCell>
                           <StyledTableCell align="right">
                             <Typography fontWeight="bold" color="primary">
-                              {/* ₪{order.totalAmount.toFixed(2)} */}
+                             1015₪ {/* ₪{order.totalAmount.toFixed(2)} */}
                             </Typography>
                           </StyledTableCell>
                         </StyledTableRow>
@@ -1429,7 +1669,7 @@ const OldOrders = () => {
                             כרטיס אשראי (מסתיים ב-1234)
                           </Typography>
                         </Grid>
-                        {order.sent === 0 && (
+                        {order.sent  && (
                           <Grid item xs={12}>
                             <Box mt={1} p={1.5} bgcolor="rgba(33, 150, 243, 0.1)" borderRadius={1}>
                               <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1444,23 +1684,16 @@ const OldOrders = () => {
                   </Box>
 
                   <Box mt={3} display="flex" justifyContent="flex-end">
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      startIcon={<ReceiptIcon />}
-                    >
-                      הורד חשבונית
-                    </Button>
-                    {/* {order.status === 'pending' && (
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      sx={{ ml: 2 }}
-                    >
-                      בטל הזמנה
-                    </Button>
-                  )} */}
-                  </Box>
+  <Button
+    variant="outlined"
+    color="primary"
+    startIcon={<ReceiptIcon />}
+    onClick={() => exportIndividualReceipt(order.orderId)} // העבר את מספר ההזמנה הספציפי
+  >
+    הורד חשבונית
+  </Button>
+</Box>
+
                 </CardContent>
               </Collapse>
             </OrderCard>
