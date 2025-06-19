@@ -11,7 +11,7 @@ export const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const navigate = useNavigate();
-const custDetails=useSelector(state=>state.user.custDetails);
+const custDetails=useSelector(state=>state.user.userDetails);
   // אתחול ספריית האנימציות
   useEffect(() => {
     AOS.init({
@@ -143,7 +143,7 @@ const custDetails=useSelector(state=>state.user.custDetails);
                   </div>
                   <h3>{category.name}</h3>
                   <p>{category.count} מוצרים</p>
-                  <Link to={`/products/category/${category.id}`} className="category-link">
+                  <Link to={`/newOrder`} className="category-link">
                     צפה במוצרים <i className="fas fa-arrow-left"></i>
                   </Link>
                 </div>

@@ -7,10 +7,12 @@ import { UpdateSendingThunk } from "./updateSending";
 import { getNewOrdersForEmpThunk } from "./getNewOrdersForEmp";
 import { assignOrdersToEmpThunk } from "./assignOrdersToEmpThunk";
 import { getCompletedOrdersForEmpThunk } from "./getCompletedOrdersForEmpThunk";
+import { getAllOrderDetailsThunk } from "./getAllOrderDetailsThunk";
 
 export const INITAIL_STATE_ORDERS = {
     myOrders: [],
     orderDetail: [],
+    allOrderDetail: [],
     newOrders: [],
     completedOrders: [],
     ordersForManage: [],
@@ -100,6 +102,15 @@ console.log(state.newOrders);
         });
 
         builder.addCase(getCompletedOrdersForEmpThunk.rejected, (state, action) => {
+            console.log("order action: ", action);
+        });  
+         builder.addCase(getAllOrderDetailsThunk.fulfilled, (state, action) => {
+            state.allOrderDetail = action.payload;
+            console.log("allOrderDetail");
+            console.log(state.allOrderDetail);
+        });
+
+        builder.addCase(getAllOrderDetailsThunk.rejected, (state, action) => {
             console.log("order action: ", action);
         });
     }
